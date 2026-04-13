@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Times New Roman", serif;
+        color: #1b1b1b;
+      }
+
+      .page {
+        width: 100%;
+        min-height: 1122px;
+        padding: 42px 44px 26px;
+        position: relative;
+        border: 2px solid #8f1d37;
+      }
+
+      .page::before {
+        content: "M PHARMA";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 420px;
+        height: 420px;
+        border: 3px solid rgba(28, 62, 117, 0.08);
+        border-radius: 999px;
+        color: rgba(28, 62, 117, 0.08);
+        font-size: 72px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.08em;
+        pointer-events: none;
+      }
+
+      .header {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        border-bottom: 2px solid #8f1d37;
+        padding-bottom: 12px;
+      }
+
+      .logo {
+        width: 78px;
+        height: 78px;
+        border: 2px solid #1f457d;
+        border-radius: 999px;
+        color: #1f457d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .header-copy {
+        flex: 1;
+        text-align: center;
+      }
+
+      .hindi {
+        margin: 0;
+        color: #8f1d37;
+        font-size: 22px;
+        letter-spacing: 0.02em;
+        font-weight: 700;
+      }
+
+      .college {
+        margin: 4px 0 0;
+        color: #1f2a70;
+        font-size: 42px;
+        font-weight: 700;
+        line-height: 1.05;
+      }
+
+      .sub {
+        margin: 2px 0 0;
+        color: #8f1d37;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .meta-line {
+        margin: 8px 0 0;
+        color: #0f1f3d;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .ref-row {
+        margin-top: 34px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .title {
+        margin: 48px 0 28px;
+        text-align: center;
+        font-size: 30px;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+      }
+
+      .body {
+        font-size: 21px;
+        line-height: 1.9;
+        text-align: justify;
+        margin: 0;
+      }
+
+      .body strong {
+        font-weight: 700;
+      }
+
+      .signature {
+        margin-top: 86px;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .sign-box {
+        width: 290px;
+        text-align: left;
+      }
+
+      .sign-mark {
+        margin: 0 0 4px;
+        color: #1d3573;
+        font-size: 26px;
+        font-family: "Brush Script MT", cursive;
+      }
+
+      .sign-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 21px;
+      }
+
+      .sign-sub {
+        margin: 4px 0 0;
+        color: #1d3573;
+        font-size: 15px;
+      }
+
+      .footer {
+        position: absolute;
+        left: 44px;
+        right: 44px;
+        bottom: 20px;
+        border-top: 2px solid #8f1d37;
+        padding-top: 8px;
+        text-align: center;
+        color: #1f2a70;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="logo">MC</div>
+        <div class="header-copy">
+          <p class="hindi">गुरु नानक देव इंजीनियरिंग कॉलेज</p>
+          <p class="college">M.Pharm College of Pharmaceutical Sciences</p>
+          <p class="sub">An Autonomous Institute | Affiliated to University</p>
+          <p class="meta-line">AICTE Approved | NAAC Accredited | ISO 9001:2015 Certified</p>
+        </div>
+      </div>
+
+      <div class="ref-row">
+        <span>Ref. No.: {{refNo}}</span>
+        <span>Dated : {{issuedDate}}</span>
+      </div>
+
+      <h1 class="title">BONAFIDE CERTIFICATE</h1>
+
+      <p class="body">
+        This is to certify that <strong>{{studentName}}</strong> (Roll Number <strong>{{rollNumber}}</strong>) is a bonafide student of
+        <strong>M.Pharm</strong> program in <strong>{{semester}}</strong>. The student is currently enrolled for the academic session and
+        this certificate is issued on request for official purpose.
+      </p>
+
+      <div class="signature">
+        <div class="sign-box">
+          <p class="sign-mark">signed</p>
+          <p class="sign-title">Assistant Registrar</p>
+          <p class="sign-sub">Academic Section</p>
+          <p class="sign-sub">M.Pharm College of Pharmaceutical Sciences</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        Gill Park, Ludhiana, Punjab - 141006 | +91-161-1234567 | admin@mpharmacollege.edu
+      </div>
+    </div>
+  </body>
+</html>
