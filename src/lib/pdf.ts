@@ -23,6 +23,24 @@ const LOCAL_CHROME_CANDIDATES = [
 const SERVERLESS_CHROMIUM_BIN_PATH = path.join(process.cwd(), "node_modules", "@sparticuz", "chromium", "bin");
 let serverlessExecutablePathPromise: Promise<string> | null = null;
 
+function configureServerlessChromiumEnv() {
+  if (!process.env.VERCEL) return;
+
+  process.env.AWS_EXECUTION_ENV ||= "AWS_Lambda_nodejs20.x";
+  process.env.AWS_LAMBDA_JS_RUNTIME ||= "nodejs20.x";
+  process.env.FONTCONFIG_PATH ||= "/tmp/fonts";
+
+  const lambdaLibPath = "/tmp/al2023/lib";
+  if (!process.env.LD_LIBRARY_PATH) {
+    process.env.LD_LIBRARY_PATH = lambdaLibPath;
+    return;
+  }
+
+  if (!process.env.LD_LIBRARY_PATH.split(":").includes(lambdaLibPath)) {
+    process.env.LD_LIBRARY_PATH = `${lambdaLibPath}:${process.env.LD_LIBRARY_PATH}`;
+  }
+}
+
 function formatDateValue(value: string | undefined, fallback = ""): string {
   if (!value) return fallback;
 
@@ -150,6 +168,8 @@ async function launchBrowser() {
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
   }
+
+  configureServerlessChromiumEnv();
 
   if (!serverlessExecutablePathPromise) {
     serverlessExecutablePathPromise = chromium.executablePath(SERVERLESS_CHROMIUM_BIN_PATH);
