@@ -296,11 +296,14 @@ function buildDocumentContexts(context: StudentBundleContext): Record<GeneratedD
 export async function generateDocumentBundle(input: AdminStudentRecordInput): Promise<GeneratedDocumentLink[]> {
   const context = await buildStudentBundleContext(input);
   const documentContexts = buildDocumentContexts(context);
+  const shouldPersistToDisk = !process.env.VERCEL;
   const diskDir = path.join(process.cwd(), "public", "generated");
   const safeEnrollment = context.enrollmentNo.replace(/[^a-zA-Z0-9_-]/g, "") || "student";
   const generatedAt = Date.now();
 
-  await fs.mkdir(diskDir, { recursive: true });
+  if (shouldPersistToDisk) {
+    await fs.mkdir(diskDir, { recursive: true });
+  }
 
   const documents: Array<{ type: GeneratedDocumentType; label: string }> = [
     { type: "bonafide_certificate", label: "Bonafide Certificate" },
@@ -313,12 +316,17 @@ export async function generateDocumentBundle(input: AdminStudentRecordInput): Pr
     documents.map(async (document, index) => {
       const pdfBuffer = await renderTemplateBuffer(document.type, documentContexts[document.type]);
       const fileName = `${document.type}-${safeEnrollment}-${generatedAt + index}.pdf`;
-      await fs.writeFile(path.join(diskDir, fileName), pdfBuffer);
+
+      if (shouldPersistToDisk) {
+        await fs.writeFile(path.join(diskDir, fileName), pdfBuffer);
+      }
 
       return {
         type: document.type,
         label: document.label,
-        pdfUrl: `/generated/${fileName}`
+        fileName,
+        pdfUrl: shouldPersistToDisk ? `/generated/${fileName}` : "",
+        pdfBase64: shouldPersistToDisk ? undefined : pdfBuffer.toString("base64")
       };
     })
   );

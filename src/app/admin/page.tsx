@@ -46,6 +46,23 @@ function formatCurrency(amount: number): string {
 const DEFAULT_ADMISSION_PAYMENT = 10000;
 const DEFAULT_FIRST_YEAR_TOTAL = 135000;
 
+function normalizeGeneratedDocuments(documents: GeneratedDocumentLink[]): GeneratedDocumentLink[] {
+  return documents.map((document) => {
+    if (!document.pdfBase64) {
+      return document;
+    }
+
+    const pdfBytes = Uint8Array.from(atob(document.pdfBase64), (char) => char.charCodeAt(0));
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const pdfUrl = URL.createObjectURL(blob);
+
+    return {
+      ...document,
+      pdfUrl
+    };
+  });
+}
+
 export default function AdminPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState<AdminFormState>(INITIAL_FORM);
@@ -73,6 +90,16 @@ export default function AdminPage() {
   const paymentDefault = formatCurrency(DEFAULT_ADMISSION_PAYMENT);
   const firstYearTotal = formatCurrency(DEFAULT_FIRST_YEAR_TOTAL);
   const firstYearDue = formatCurrency(DEFAULT_FIRST_YEAR_TOTAL - DEFAULT_ADMISSION_PAYMENT);
+
+  useEffect(() => {
+    return () => {
+      generatedDocuments.forEach((document) => {
+        if (document.pdfUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(document.pdfUrl);
+        }
+      });
+    };
+  }, [generatedDocuments]);
 
   useEffect(() => {
     if (referenceEdited) return;
@@ -175,7 +202,15 @@ export default function AdminPage() {
         return;
       }
 
-      setGeneratedDocuments(data.documents || []);
+      setGeneratedDocuments((previousDocuments) => {
+        previousDocuments.forEach((document) => {
+          if (document.pdfUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(document.pdfUrl);
+          }
+        });
+
+        return normalizeGeneratedDocuments(data.documents || []);
+      });
       setReviewOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -441,7 +476,7 @@ export default function AdminPage() {
             {generatedDocuments.map((document) => (
               <div className="generated-doc-card" key={document.type}>
                 <h3>{document.label}</h3>
-                <p>{document.pdfUrl.split("/").pop()}</p>
+                <p>{document.fileName}</p>
                 <a className="button tight" href={document.pdfUrl} target="_blank" rel="noreferrer">
                   Open PDF
                 </a>

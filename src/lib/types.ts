@@ -85,7 +85,9 @@ export interface AdminStudentRecordInput {
 export interface GeneratedDocumentLink {
   type: GeneratedDocumentType;
   label: string;
+  fileName: string;
   pdfUrl: string;
+  pdfBase64?: string;
 }
 
 export type ApplicationStatus = "submitted" | "approved" | "rejected";
