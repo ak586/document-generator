@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OM Sri Sai College Header</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #f2f2f2;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .college-header {
+      width: 100%;
+      max-width: 1600px;
+      height: 220px;
+      margin: 0 auto;
+      display: flex;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #ddd;
+    }
+
+    /* LEFT IMAGE */
+    .left-logo-block {
+      width: 300px;
+      min-width: 300px;
+      height: 100%;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .left-logo-block img {
+    width: 70%;
+    height: 84%;
+    object-fit: cover;
+    display: block;
+}
+
+    /* RIGHT SIDE */
+    .right-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-left: -90px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 
+      CONTINUOUS DIAGONAL:
+      orange: top-left 40, bottom-left 180
+      blue:   top-left 180, bottom-left 280
+      yellow: top-left 280, bottom-left 360
+    */
+
+    .orange-block {
+      position: relative;
+      height: 112px;
+      background: #f15a00;
+      clip-path: polygon(40px 0, 100% 0, 100% 100%, 180px 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 30px 0 210px;
+      overflow: hidden;
+    }
+
+    .blue-block {
+      position: relative;
+      height: 65px;
+      background: #63d8ff;
+      clip-path: polygon(180px 0, 100% 0, 100% 100%, 280px 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 25px 0 250px;
+      overflow: hidden;
+    }
+
+    .yellow-block {
+      position: relative;
+      height: 43px;
+      background: #ffd400;
+      clip-path: polygon(280px 0, 100% 0, 100% 100%, 360px 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px 0 300px;
+      overflow: hidden;
+    }
+
+    /* BLUE SLANT INSIDE ORANGE */
+    .orange-block::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 82px;
+      width: 130px;
+      height: 112px;
+      background: #082a7a;
+      clip-path: polygon(0 0, 62% 0, 100% 100%, 38% 100%);
+      z-index: 1;
+    }
+
+    .college-title {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      text-align: center;
+      font-size: 38px;
+      line-height: 1.03;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #082a7a;
+      text-shadow:
+        -2px -2px 0 #fff,
+         2px -2px 0 #fff,
+        -2px  2px 0 #fff,
+         2px  2px 0 #fff;
+      white-space: nowrap;
+    }
+
+    .hindi-line-1 {
+      width: 100%;
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.15;
+      font-weight: 600;
+      color: #111;
+      white-space: nowrap;
+    }
+
+    .hindi-line-2 {
+      width: 100%;
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: #111;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 1300px) {
+      .college-header {
+        height: 190px;
+      }
+
+      .left-logo-block {
+        width: 360px;
+        min-width: 360px;
+      }
+
+      .orange-block {
+        height: 95px;
+        clip-path: polygon(30px 0, 100% 0, 100% 100%, 145px 100%);
+        padding-left: 175px;
+      }
+
+      .blue-block {
+        height: 55px;
+        clip-path: polygon(145px 0, 100% 0, 100% 100%, 225px 100%);
+        padding-left: 205px;
+      }
+
+      .yellow-block {
+        height: 40px;
+        clip-path: polygon(225px 0, 100% 0, 100% 100%, 290px 100%);
+        padding-left: 245px;
+      }
+
+      .orange-block::before {
+        left: 62px;
+        width: 105px;
+        height: 95px;
+      }
+
+      .college-title {
+        font-size: 29px;
+      }
+
+      .hindi-line-1,
+      .hindi-line-2 {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="college-header">
+    <div class="left-logo-block">
+      <img src="om-shri-collage-logo.png" alt="College Logo Block">
+    </div>
+
+    <div class="right-section">
+      <div class="orange-block">
+        <div class="college-title">
+          OM SRI SAI COLLEGE OF<br>
+          PARAMEDICAL AND SCIENCES
+        </div>
+      </div>
+
+      <div class="blue-block">
+        <div class="hindi-line-1">
+          (राष्ट्रकवि रामधारी सिंह "दिनकर" मेमोरियल ट्रस्ट के तत्वावधान में संचालित)
+        </div>
+      </div>
+
+      <div class="yellow-block">
+        <div class="hindi-line-2">
+          बिहार स्वास्थ्य विज्ञान विश्वविद्यालय, पटना द्वारा मान्यता प्राप्त
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

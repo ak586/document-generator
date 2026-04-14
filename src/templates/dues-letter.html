@@ -25,19 +25,124 @@
       }
 
       .top-strip {
-        border-bottom: 1px solid #14356c;
-        background: #fffaf5;
-        line-height: 0;
+        background: #fff;
+        border-bottom: 1px solid #d8d1c8;
+        padding: 0;
       }
 
-      .header-banner {
-        display: block;
+      .college-header {
         width: 100%;
-        height: auto;
+        height: 168px;
+        display: flex;
+        overflow: hidden;
+        background: #fff;
       }
 
-      .top-inner {
-        min-height: 126px;
+      .left-logo-block {
+        width: 230px;
+        min-width: 230px;
+        height: 100%;
+        overflow: hidden;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .left-logo-block img {
+        width: 74%;
+        height: 86%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .right-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: -69px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .orange-block {
+        position: relative;
+        height: 86px;
+        background: #f15a00;
+        clip-path: polygon(31px 0, 100% 0, 100% 100%, 138px 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 23px 0 161px;
+        overflow: hidden;
+      }
+
+      .blue-block {
+        position: relative;
+        height: 50px;
+        background: #63d8ff;
+        clip-path: polygon(138px 0, 100% 0, 100% 100%, 214px 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 19px 0 191px;
+        overflow: hidden;
+      }
+
+      .yellow-block {
+        position: relative;
+        height: 32px;
+        background: #ffd400;
+        clip-path: polygon(214px 0, 100% 0, 100% 100%, 275px 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15px 0 229px;
+        overflow: hidden;
+      }
+
+      .orange-block::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 63px;
+        width: 100px;
+        height: 86px;
+        background: #082a7a;
+        clip-path: polygon(0 0, 62% 0, 100% 100%, 38% 100%);
+        z-index: 1;
+      }
+
+      .college-title {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        text-align: center;
+        font-size: 29px;
+        line-height: 1.03;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #082a7a;
+        text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+        white-space: nowrap;
+      }
+
+      .hindi-line-1,
+      .hindi-line-2 {
+        width: 100%;
+        text-align: center;
+        font-size: 12.8px;
+        line-height: 1.1;
+        color: #111;
+        white-space: nowrap;
+      }
+
+      .hindi-line-1 {
+        font-weight: 600;
+      }
+
+      .hindi-line-2 {
+        font-weight: 700;
       }
 
       .watermark {
@@ -45,24 +150,20 @@
         left: 50%;
         top: 49%;
         transform: translate(-50%, -50%);
-        width: 265px;
-        height: 265px;
-        border-radius: 50%;
-        border: 3px solid rgba(12, 53, 102, 0.05);
+        width: 290px;
+        height: 290px;
         z-index: 0;
-      }
-
-      .watermark::before {
-        content: "OSSCPS";
-        position: absolute;
-        inset: 0;
+        opacity: 0.09;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(12, 53, 102, 0.05);
-        font-size: 39px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
+      }
+
+      .watermark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
       }
 
       .content {
@@ -271,14 +372,41 @@
   <body>
     <div class="page">
       <div class="top-strip">
-        {{#if headerBannerDataUri}}
-        <img class="header-banner" src="{{headerBannerDataUri}}" alt="Document Header Banner" />
-        {{else}}
-        <div class="top-inner"></div>
-        {{/if}}
+        <div class="college-header">
+          <div class="left-logo-block">
+            {{#if logoDataUri}}
+            <img src="{{logoDataUri}}" alt="College Logo Block" />
+            {{/if}}
+          </div>
+
+          <div class="right-section">
+            <div class="orange-block">
+              <div class="college-title">
+                OM SRI SAI COLLEGE OF<br />
+                PARAMEDICAL AND SCIENCES
+              </div>
+            </div>
+
+            <div class="blue-block">
+              <div class="hindi-line-1">
+                (राष्ट्रकवि रामधारी सिंह "दिनकर" मेमोरियल ट्रस्ट के तत्वावधान में संचालित)
+              </div>
+            </div>
+
+            <div class="yellow-block">
+              <div class="hindi-line-2">
+                बिहार स्वास्थ्य विज्ञान विश्वविद्यालय, पटना द्वारा मान्यता प्राप्त
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="watermark"></div>
+      <div class="watermark">
+        {{#if logoDataUri}}
+        <img src="{{logoDataUri}}" alt="College Watermark" />
+        {{/if}}
+      </div>
 
       <div class="content">
         <div class="meta-row">
