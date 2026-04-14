@@ -261,26 +261,11 @@
       }
 
       .sign-row {
-        margin-top: 16px;
+        margin-top: 48px;
         display: flex;
         justify-content: flex-end;
         align-items: flex-end;
         gap: 16px;
-      }
-
-      .stamp-placeholder {
-        width: 108px;
-        height: 108px;
-        border: 1.5px dashed #333;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-size: 9px;
-        font-weight: 700;
-        color: #3a3a3a;
-        padding: 6px;
       }
 
       .signatory {
@@ -454,8 +439,22 @@
               <td>Hostel Fee</td>
               <td>{{duesHostelFee}}</td>
             </tr>
+            {{#if hasFirstYearTransportFee}}
             <tr>
               <td class="sr-col">5</td>
+              <td>Transport Fee</td>
+              <td>{{duesTransportFee}}</td>
+            </tr>
+            {{/if}}
+            {{#if hasFirstYearOtherFee}}
+            <tr>
+              <td class="sr-col">{{#if hasFirstYearTransportFee}}6{{else}}5{{/if}}</td>
+              <td>Other Fee</td>
+              <td>{{duesOtherFee}}</td>
+            </tr>
+            {{/if}}
+            <tr>
+              <td class="sr-col">{{#if hasFirstYearOtherFee}}{{#if hasFirstYearTransportFee}}7{{else}}6{{/if}}{{else}}{{#if hasFirstYearTransportFee}}6{{else}}5{{/if}}{{/if}}</td>
               <td>Paid Amount</td>
               <td>{{duesPaidAmount}}</td>
             </tr>
@@ -498,7 +497,6 @@
         </table>
 
         <div class="sign-row">
-          <div class="stamp-placeholder">College Seal / Stamp after print</div>
           <div class="signatory">
             <div class="sign-line"></div>
             <p class="sign-text">Signatory</p>

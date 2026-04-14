@@ -18,6 +18,41 @@ export interface BankDetails {
   bankBranch: string;
 }
 
+export type FeeStructureMode = "same_for_all_years" | "year_wise";
+
+export interface FeeStructureYearInput {
+  yearNo: number;
+  tuitionFee: number;
+  labFee: number;
+  examinationFee: number;
+  hostelFee: number;
+  transportFee: number;
+  otherFee: number;
+}
+
+export interface FeeStructureYearRecord extends FeeStructureYearInput {
+  totalFee: number;
+}
+
+export interface FeeStructureRecord {
+  id: string;
+  courseId: string;
+  batchYear: number;
+  mode: FeeStructureMode;
+  admissionPaymentDefault: number;
+  years: FeeStructureYearRecord[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeeStructureUpsertInput {
+  courseId: string;
+  batchYear: number;
+  mode: FeeStructureMode;
+  admissionPaymentDefault: number;
+  years: FeeStructureYearInput[];
+}
+
 export type AdmissionSlipFeeType = "academic" | "hostel" | "transport";
 
 export interface AdmissionSlipMetadata {

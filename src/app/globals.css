@@ -512,6 +512,33 @@ h3 {
   margin-top: 12px;
 }
 
+.admin-fee-card {
+  margin-top: 18px;
+}
+
+.admin-readonly {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.fee-year-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.fee-year-card {
+  background: #fff;
+}
+
+.fee-total-line {
+  margin: 12px 0 0;
+  font-weight: 700;
+  color: var(--primary-strong);
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -559,7 +586,8 @@ h3 {
   .meta-grid,
   .details-grid,
   .generated-doc-grid,
-  .modal-grid {
+  .modal-grid,
+  .fee-year-grid {
     grid-template-columns: 1fr;
   }
 

@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { buildDefaultReferenceNo, DEFAULT_FEE_STRUCTURE, formatOrdinal, getAcademicYearLabel, getCourseById, getCourseSessionLabel } from "@/lib/course-catalog";
+import { buildDefaultReferenceNo, formatOrdinal, getAcademicYearLabel, getCourseById, getCourseSessionLabel } from "@/lib/course-catalog";
 import { getBankDetails } from "@/lib/bank-details";
+import { getRequiredFeeStructure } from "@/lib/fee-structures";
 import { renderTemplateBuffer } from "@/lib/pdf";
 import { AdminStudentRecordInput, GeneratedDocumentLink, GeneratedDocumentType } from "@/lib/types";
 
@@ -40,6 +41,10 @@ type StudentBundleContext = {
   firstYearLabFee: string;
   firstYearExaminationFee: string;
   firstYearHostelFee: string;
+  firstYearTransportFee: string;
+  firstYearOtherFee: string;
+  hasFirstYearTransportFee: boolean;
+  hasFirstYearOtherFee: boolean;
   firstYearPaidAmount: string;
   firstYearDueAmount: string;
   admissionAmountValue: string;
@@ -143,6 +148,7 @@ async function readAssetAsDataUri(fileName: string, mimeType: string): Promise<s
 
 async function buildStudentBundleContext(input: AdminStudentRecordInput): Promise<StudentBundleContext> {
   const course = getCourseById(input.courseId);
+  const feeStructure = await getRequiredFeeStructure(input.courseId, input.startYear);
   const bankDetails = getBankDetails();
   const issueDate = new Date();
   const issuedDate = formatDateDash(issueDate);
@@ -150,17 +156,13 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
   const normalizedCurrentYear = Math.max(1, Math.min(input.currentYear, course.durationYears));
   const fallbackReference = buildDefaultReferenceNo(course, input.startYear, input.enrollmentNo);
   const referenceNo = sanitizeReferenceNo(input.referenceNo, fallbackReference);
-  const annualTotal =
-    DEFAULT_FEE_STRUCTURE.tuitionFee +
-    DEFAULT_FEE_STRUCTURE.labFee +
-    DEFAULT_FEE_STRUCTURE.examinationFee +
-    DEFAULT_FEE_STRUCTURE.hostelFee;
-  const firstYearDue = annualTotal - DEFAULT_FEE_STRUCTURE.initialPayment;
-
   const bonafideYearHeaders = Array.from({ length: course.durationYears }, (_, index) => `${formatOrdinal(index + 1)} Year`);
-  const yearlyTotals = Array.from({ length: course.durationYears }, () => annualTotal);
-  const yearlyPayments = Array.from({ length: course.durationYears }, (_, index) => (index === 0 ? DEFAULT_FEE_STRUCTURE.initialPayment : 0));
+  const yearRecords = bonafideYearHeaders.map((_, index) => feeStructure.years[index]);
+  const yearlyTotals = yearRecords.map((year) => year.totalFee);
+  const yearlyPayments = yearRecords.map((_, index) => (index === 0 ? feeStructure.admissionPaymentDefault : 0));
   const yearlyDues = yearlyTotals.map((amount, index) => amount - yearlyPayments[index]);
+  const firstYearRecord = yearRecords[0];
+  const firstYearDue = yearlyDues[0];
 
   const buildRow = (label: string, total: number, yearlyAmounts: number[]) => ({
     label,
@@ -200,28 +202,34 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     headerBannerDataUri,
     bonafideYearHeaders,
     bonafideFeeRows: [
-      buildRow("Tuition Fee", DEFAULT_FEE_STRUCTURE.tuitionFee * course.durationYears, Array.from({ length: course.durationYears }, () => DEFAULT_FEE_STRUCTURE.tuitionFee)),
-      buildRow("LAB/Library Fee", DEFAULT_FEE_STRUCTURE.labFee * course.durationYears, Array.from({ length: course.durationYears }, () => DEFAULT_FEE_STRUCTURE.labFee)),
-      buildRow(
-        "Examination Fee",
-        DEFAULT_FEE_STRUCTURE.examinationFee * course.durationYears,
-        Array.from({ length: course.durationYears }, () => DEFAULT_FEE_STRUCTURE.examinationFee)
-      ),
-      buildRow("Hostel Fee", DEFAULT_FEE_STRUCTURE.hostelFee * course.durationYears, Array.from({ length: course.durationYears }, () => DEFAULT_FEE_STRUCTURE.hostelFee)),
-      buildRow("Paid Amount", DEFAULT_FEE_STRUCTURE.initialPayment, yearlyPayments),
+      buildRow("Tuition Fee", yearRecords.reduce((sum, year) => sum + year.tuitionFee, 0), yearRecords.map((year) => year.tuitionFee)),
+      buildRow("LAB/Library Fee", yearRecords.reduce((sum, year) => sum + year.labFee, 0), yearRecords.map((year) => year.labFee)),
+      buildRow("Examination Fee", yearRecords.reduce((sum, year) => sum + year.examinationFee, 0), yearRecords.map((year) => year.examinationFee)),
+      buildRow("Hostel Fee", yearRecords.reduce((sum, year) => sum + year.hostelFee, 0), yearRecords.map((year) => year.hostelFee)),
+      ...(yearRecords.some((year) => year.transportFee > 0)
+        ? [buildRow("Transport Fee", yearRecords.reduce((sum, year) => sum + year.transportFee, 0), yearRecords.map((year) => year.transportFee))]
+        : []),
+      ...(yearRecords.some((year) => year.otherFee > 0)
+        ? [buildRow("Other Fee", yearRecords.reduce((sum, year) => sum + year.otherFee, 0), yearRecords.map((year) => year.otherFee))]
+        : []),
+      buildRow("Paid Amount", feeStructure.admissionPaymentDefault, yearlyPayments),
       buildRow("Dues Amount", yearlyDues.reduce((sum, amount) => sum + amount, 0), yearlyDues),
-      buildRow("G.Total", yearlyDues.reduce((sum, amount) => sum + amount, 0), yearlyDues)
+      buildRow("G.Total", yearlyTotals.reduce((sum, amount) => sum + amount, 0), yearlyTotals)
     ],
     bonafideTotalDue: formatInr(yearlyDues.reduce((sum, amount) => sum + amount, 0)),
-    firstYearGrossTotal: formatInr(annualTotal),
-    firstYearTuitionFee: formatInr(DEFAULT_FEE_STRUCTURE.tuitionFee),
-    firstYearLabFee: formatInr(DEFAULT_FEE_STRUCTURE.labFee),
-    firstYearExaminationFee: formatInr(DEFAULT_FEE_STRUCTURE.examinationFee),
-    firstYearHostelFee: formatInr(DEFAULT_FEE_STRUCTURE.hostelFee),
-    firstYearPaidAmount: formatInr(DEFAULT_FEE_STRUCTURE.initialPayment),
+    firstYearGrossTotal: formatInr(firstYearRecord.totalFee),
+    firstYearTuitionFee: formatInr(firstYearRecord.tuitionFee),
+    firstYearLabFee: formatInr(firstYearRecord.labFee),
+    firstYearExaminationFee: formatInr(firstYearRecord.examinationFee),
+    firstYearHostelFee: formatInr(firstYearRecord.hostelFee),
+    firstYearTransportFee: formatInr(firstYearRecord.transportFee),
+    firstYearOtherFee: formatInr(firstYearRecord.otherFee),
+    hasFirstYearTransportFee: firstYearRecord.transportFee > 0,
+    hasFirstYearOtherFee: firstYearRecord.otherFee > 0,
+    firstYearPaidAmount: formatInr(feeStructure.admissionPaymentDefault),
     firstYearDueAmount: formatInr(firstYearDue),
-    admissionAmountValue: formatInr(DEFAULT_FEE_STRUCTURE.initialPayment),
-    admissionAmountInWords: amountToWords(DEFAULT_FEE_STRUCTURE.initialPayment),
+    admissionAmountValue: formatInr(feeStructure.admissionPaymentDefault),
+    admissionAmountInWords: amountToWords(feeStructure.admissionPaymentDefault),
     admissionSlipSerialNumber: createSlipSerialNumber(input.enrollmentNo.trim()),
     feeAcademicChecked: true,
     feeHostelChecked: false,
@@ -256,6 +264,8 @@ function buildDocumentContexts(context: StudentBundleContext): Record<GeneratedD
       duesLabFee: context.firstYearLabFee,
       duesExaminationFee: context.firstYearExaminationFee,
       duesHostelFee: context.firstYearHostelFee,
+      duesTransportFee: context.firstYearTransportFee,
+      duesOtherFee: context.firstYearOtherFee,
       duesPaidAmount: context.firstYearPaidAmount,
       duesGrossTotalFee: context.firstYearGrossTotal,
       duesNetPayable: context.firstYearDueAmount

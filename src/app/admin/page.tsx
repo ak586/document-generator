@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { buildDefaultReferenceNo, COURSE_CATALOG, DEFAULT_FEE_STRUCTURE, getAcademicYearLabel, getCourseById, getCourseSessionLabel } from "@/lib/course-catalog";
+import { buildDefaultReferenceNo, COURSE_CATALOG, getAcademicYearLabel, getCourseById, getCourseSessionLabel } from "@/lib/course-catalog";
 import { GeneratedDocumentLink } from "@/lib/types";
 
 type AdminFormState = {
@@ -42,6 +43,9 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-IN").format(amount);
 }
 
+const DEFAULT_ADMISSION_PAYMENT = 10000;
+const DEFAULT_FIRST_YEAR_TOTAL = 135000;
+
 export default function AdminPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState<AdminFormState>(INITIAL_FORM);
@@ -50,6 +54,8 @@ export default function AdminPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedDocuments, setGeneratedDocuments] = useState<GeneratedDocumentLink[]>([]);
+  const [feeStructureExists, setFeeStructureExists] = useState(true);
+  const [feeStructureMessage, setFeeStructureMessage] = useState("");
 
   const selectedCourse = useMemo(() => {
     if (!form.courseId) return null;
@@ -64,20 +70,9 @@ export default function AdminPage() {
   const startYearNumber = Number.parseInt(form.startYear, 10) || new Date().getFullYear();
   const academicYear = getAcademicYearLabel(startYearNumber);
   const courseSession = selectedCourse ? getCourseSessionLabel(startYearNumber, selectedCourse.durationYears) : "-";
-  const paymentDefault = formatCurrency(DEFAULT_FEE_STRUCTURE.initialPayment);
-  const firstYearTotal = formatCurrency(
-    DEFAULT_FEE_STRUCTURE.tuitionFee +
-      DEFAULT_FEE_STRUCTURE.labFee +
-      DEFAULT_FEE_STRUCTURE.examinationFee +
-      DEFAULT_FEE_STRUCTURE.hostelFee
-  );
-  const firstYearDue = formatCurrency(
-    DEFAULT_FEE_STRUCTURE.tuitionFee +
-      DEFAULT_FEE_STRUCTURE.labFee +
-      DEFAULT_FEE_STRUCTURE.examinationFee +
-      DEFAULT_FEE_STRUCTURE.hostelFee -
-      DEFAULT_FEE_STRUCTURE.initialPayment
-  );
+  const paymentDefault = formatCurrency(DEFAULT_ADMISSION_PAYMENT);
+  const firstYearTotal = formatCurrency(DEFAULT_FIRST_YEAR_TOTAL);
+  const firstYearDue = formatCurrency(DEFAULT_FIRST_YEAR_TOTAL - DEFAULT_ADMISSION_PAYMENT);
 
   useEffect(() => {
     if (referenceEdited) return;
@@ -95,6 +90,29 @@ export default function AdminPage() {
     }));
   }, [referenceEdited, selectedCourse, startYearNumber, form.enrollmentNo]);
 
+  useEffect(() => {
+    if (!selectedCourse) {
+      setFeeStructureExists(true);
+      setFeeStructureMessage("");
+      return;
+    }
+
+    void fetch(`/api/admin/fee-structures?courseId=${encodeURIComponent(selectedCourse.id)}&batchYear=${startYearNumber}`)
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to check fee structure.");
+        }
+
+        setFeeStructureExists(Boolean(data.exists));
+        setFeeStructureMessage(data.exists ? "" : `Fee data is missing for ${selectedCourse.shortName} batch ${startYearNumber}. Please add it before generating documents.`);
+      })
+      .catch((error: any) => {
+        setFeeStructureExists(false);
+        setFeeStructureMessage(error.message || "Failed to check fee structure.");
+      });
+  }, [selectedCourse, startYearNumber]);
+
   function updateField(name: keyof AdminFormState, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
@@ -111,6 +129,11 @@ export default function AdminPage() {
 
     if (currentYearNumber > selectedCourse.durationYears) {
       setErrorMessage("Current year cannot exceed the selected course duration.");
+      return;
+    }
+
+    if (!feeStructureExists) {
+      setErrorMessage(feeStructureMessage || "Fee data is missing. Please enter the fee structure first.");
       return;
     }
 
@@ -187,6 +210,9 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="row">
+            <Link className="button secondary tight" href="/admin/fee-structures">
+              Fee Structures
+            </Link>
             <button className="button secondary tight" onClick={resetForm} type="button">
               Start Fresh
             </button>
@@ -339,6 +365,11 @@ export default function AdminPage() {
             </div>
 
             {errorMessage ? <p className="message" style={{ marginTop: 14 }}>{errorMessage}</p> : null}
+            {!feeStructureExists ? (
+              <p className="message" style={{ marginTop: 14 }}>
+                {feeStructureMessage} <Link href="/admin/fee-structures">Open Fee Structure Management</Link>
+              </p>
+            ) : null}
 
             <div className="row" style={{ marginTop: 18 }}>
               <button className="button tight" type="submit">
