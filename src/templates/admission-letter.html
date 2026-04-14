@@ -43,10 +43,10 @@
       .watermark {
         position: absolute;
         left: 50%;
-        top: 49%;
+        top: 50%;
         transform: translate(-50%, -50%);
-        width: 265px;
-        height: 265px;
+        width: 250px;
+        height: 250px;
         border-radius: 50%;
         border: 3px solid rgba(12, 53, 102, 0.05);
         z-index: 0;
@@ -60,7 +60,7 @@
         align-items: center;
         justify-content: center;
         color: rgba(12, 53, 102, 0.05);
-        font-size: 39px;
+        font-size: 37px;
         font-weight: 700;
         letter-spacing: 0.05em;
       }
@@ -68,7 +68,7 @@
       .content {
         position: relative;
         z-index: 1;
-        padding: 34px 34px 110px;
+        padding: 36px 46px 110px;
       }
 
       .meta-row {
@@ -76,91 +76,60 @@
         justify-content: space-between;
         font-size: 17px;
         font-weight: 700;
-        margin-bottom: 24px;
+        margin-bottom: 40px;
       }
 
       .title {
-        margin: 0 0 14px;
+        margin: 0 0 12px;
         text-align: center;
-        font-size: 18px;
+        font-size: 20px;
+        font-weight: 800;
+        text-transform: uppercase;
+        text-decoration: underline;
+      }
+
+      .subtitle {
+        margin: 0 0 26px;
+        text-align: center;
+        font-size: 17px;
         font-weight: 800;
         text-transform: uppercase;
         text-decoration: underline;
       }
 
       .lead {
-        margin: 0 0 13px;
-        font-size: 13.9px;
-        line-height: 1.52;
+        margin: 0 0 18px;
+        font-size: 15px;
+        line-height: 1.65;
         text-align: justify;
+      }
+
+      .detail-list {
+        margin: 0 0 22px;
+      }
+
+      .detail-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 15px;
+        line-height: 1.45;
+        margin-bottom: 6px;
+      }
+
+      .detail-label {
+        width: 190px;
+        flex: 0 0 190px;
+        font-weight: 800;
+      }
+
+      .detail-value {
+        flex: 1;
         font-weight: 600;
       }
 
-      .lead strong {
-        font-weight: 800;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .dues-table {
-        margin-top: 10px;
-      }
-
-      .dues-table th,
-      .dues-table td,
-      .bank-table td {
-        border: 1px solid #222;
-        padding: 4px 6px;
-        font-size: 12.5px;
-        line-height: 1.15;
-      }
-
-      .dues-table th {
-        background: rgba(242, 242, 242, 0.86);
-        text-align: left;
-        font-weight: 800;
-      }
-
-      .dues-table td {
-        font-weight: 700;
-      }
-
-      .dues-table td:last-child,
-      .dues-table th:last-child {
-        text-align: right;
-      }
-
-      .dues-table .sr-col {
-        width: 44px;
-        text-align: center;
-      }
-
-      .dues-table .amount-col {
-        width: 150px;
-      }
-
-      .bank-title {
-        margin: 16px 0 7px;
-        font-size: 14px;
-        font-weight: 800;
-        text-decoration: underline;
-      }
-
-      .bank-table td {
-        font-size: 12.1px;
-        font-weight: 700;
-      }
-
-      .bank-table td:first-child {
-        width: 240px;
-        font-weight: 800;
-      }
-
       .sign-row {
-        margin-top: 16px;
+        margin-top: 42px;
         display: flex;
         justify-content: flex-end;
         align-items: flex-end;
@@ -168,8 +137,8 @@
       }
 
       .stamp-placeholder {
-        width: 108px;
-        height: 108px;
+        width: 104px;
+        height: 104px;
         border: 1.5px dashed #333;
         border-radius: 50%;
         display: flex;
@@ -188,8 +157,8 @@
 
       .sign-line {
         border-top: 1px solid #222;
-        width: 108px;
-        margin: 0 auto 3px;
+        width: 148px;
+        margin: 0 auto 4px;
       }
 
       .sign-text {
@@ -282,98 +251,62 @@
 
       <div class="content">
         <div class="meta-row">
-          <span>Ref. No. {{duesReferenceCode}}</span>
+          <span>Ref. No:- {{admissionLetterReferenceNo}}</span>
           <span>Date:- {{issuedDate}}</span>
         </div>
 
-        <p class="title">DUES LETTER</p>
+        <p class="title">ADMISSION LETTER</p>
+        <p class="subtitle">TO WHOM IT MAY CONCERN</p>
 
         <p class="lead">
-          This is certify that <strong>{{studentName}}</strong>, S/D/O- <strong>{{guardianName}}</strong>, is student of our college
-          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, Madhubani pursuing
-          <strong>{{duesCourseName}}</strong>. His/her Enrolment No. is <strong>{{duesEnrollmentNo}}</strong>. This student is currently
-          enrolled in the <strong>{{duesYearLabel}}</strong> of Session <strong>{{duesSessionRange}}</strong>.
+          We are delighted to extend our warmest congratulations to you on your successful admission to the
+          <strong>{{programName}}</strong> program at <strong>Om Sri Sai College of Paramedical and Sciences</strong>. We are excited to
+          welcome you as a member of our esteemed institution.
         </p>
 
-        <p class="lead">This is with reference to your due amount of <strong>{{duesCourseShort}}, {{duesYearLabel}}</strong>.</p>
+        <div class="detail-list">
+          <div class="detail-row">
+            <span class="detail-label">Name of the Student</span>
+            <span class="detail-value">{{studentName}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">D.O.B</span>
+            <span class="detail-value">{{dateOfBirth}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Enrollment Number</span>
+            <span class="detail-value">{{admissionLetterEnrollmentNo}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Father's Name</span>
+            <span class="detail-value">{{guardianName}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Program Name</span>
+            <span class="detail-value">{{programName}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Academic Year</span>
+            <span class="detail-value">{{academicYear}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Program Duration</span>
+            <span class="detail-value">{{programDuration}}</span>
+          </div>
+        </div>
 
-        <table class="dues-table">
-          <thead>
-            <tr>
-              <th class="sr-col">S. No</th>
-              <th>Particulars</th>
-              <th class="amount-col">{{duesYearLabel}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="sr-col">1</td>
-              <td>Tuition Fee</td>
-              <td>{{duesTuitionFee}}</td>
-            </tr>
-            <tr>
-              <td class="sr-col">2</td>
-              <td>LAB/Library Fee</td>
-              <td>{{duesLabFee}}</td>
-            </tr>
-            <tr>
-              <td class="sr-col">3</td>
-              <td>Examination Fee</td>
-              <td>{{duesExaminationFee}}</td>
-            </tr>
-            <tr>
-              <td class="sr-col">4</td>
-              <td>Hostel Fee</td>
-              <td>{{duesHostelFee}}</td>
-            </tr>
-            <tr>
-              <td class="sr-col">5</td>
-              <td>Paid Amount</td>
-              <td>{{duesPaidAmount}}</td>
-            </tr>
-            <tr>
-              <td class="sr-col"></td>
-              <td><strong>Total fee</strong></td>
-              <td><strong>{{duesGrossTotalFee}}</strong></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <p class="lead" style="margin-top: 16px;">
-          You are requested to deposit your due amount of <strong>Rs. {{duesNetPayable}}/-</strong> in the following account details given below:-
+        <p class="lead">
+          We believe that your enrollment in this program is the beginning of a rewarding educational journey.
+          Throughout the program, you will gain essential knowledge and practical skills that are fundamental to the
+          field of health science. This program is designed to provide you with a strong foundation and prepare you for
+          a fulfilling career in healthcare.
         </p>
-
-        <p class="bank-title">College Bank Account Details:-</p>
-        <table class="bank-table">
-          <tbody>
-            <tr>
-              <td>Account Holder Name</td>
-              <td>{{bankAccountHolderName}}</td>
-            </tr>
-            <tr>
-              <td>Account Number</td>
-              <td>{{bankAccountNumber}}</td>
-            </tr>
-            <tr>
-              <td>IFSC Code</td>
-              <td>{{bankIfscCode}}</td>
-            </tr>
-            <tr>
-              <td>Type of Account</td>
-              <td>{{bankAccountType}}</td>
-            </tr>
-            <tr>
-              <td>Bank &amp; Branch</td>
-              <td>{{bankBranch}}</td>
-            </tr>
-          </tbody>
-        </table>
 
         <div class="sign-row">
           <div class="stamp-placeholder">College Seal / Stamp after print</div>
           <div class="signatory">
             <div class="sign-line"></div>
-            <p class="sign-text">Signatory</p>
+            <p class="sign-text">Authorized Signatory</p>
           </div>
         </div>
       </div>

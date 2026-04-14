@@ -4,14 +4,15 @@ import path from "node:path";
 import handlebars from "handlebars";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
-import { AdmissionSlipMetadata, StudentApplication } from "@/lib/types";
+import { AdmissionSlipMetadata, DocumentType, StudentApplication } from "@/lib/types";
 
-const templateMap = {
+const templateMap: Record<DocumentType, string> = {
   bonafide_certificate: "bonafide-certificate.html",
   transcript_request: "transcript-request.html",
   admission_slip: "admission-slip.html",
-  dues_letter: "dues-letter.html"
-} as const;
+  dues_letter: "dues-letter.html",
+  admission_letter: "admission-letter.html"
+};
 
 const LOCAL_CHROME_CANDIDATES = [
   process.env.PUPPETEER_EXECUTABLE_PATH,
@@ -56,7 +57,7 @@ function createCourseShortCode(course: string | undefined): string {
   return initials || course.replace(/[^A-Za-z0-9]/g, "").slice(0, 4).toUpperCase() || "ADM";
 }
 
-function getAdmissionSlipContext(application: StudentApplication, issueDate: Date, formattedDate: string) {
+function getLegacyAdmissionSlipContext(application: StudentApplication, issueDate: Date, formattedDateSlash: string) {
   const admissionSlip = application.metadata.admissionSlip as AdmissionSlipMetadata | undefined;
   const courseCode = createCourseShortCode(admissionSlip?.course);
   const yearCode = String(issueDate.getFullYear()).slice(-2);
@@ -66,7 +67,7 @@ function getAdmissionSlipContext(application: StudentApplication, issueDate: Dat
   return {
     admissionReferenceCode: admissionSlip?.referenceCode || defaultReferenceCode,
     admissionSerialNumber: admissionSlip?.serialNumber || application.id.slice(0, 3).toUpperCase(),
-    admissionSlipDate: formatDateValue(admissionSlip?.slipDate, formattedDate),
+    admissionSlipDate: formatDateValue(admissionSlip?.slipDate, formattedDateSlash),
     admissionBirthDate: formatDateValue(admissionSlip?.dateOfBirth),
     admissionCourse: admissionSlip?.course || "Course Name",
     admissionAmountInWords: admissionSlip?.amountInWords || "Amount in words",
@@ -78,7 +79,7 @@ function getAdmissionSlipContext(application: StudentApplication, issueDate: Dat
   };
 }
 
-function getDuesLetterContext(application: StudentApplication, issueYear: number, sessionRange: string) {
+function getLegacyDuesLetterContext(application: StudentApplication, issueYear: number, sessionRange: string) {
   const enrollmentCode = application.rollNumber || application.id.slice(0, 8).toUpperCase();
   const duesReferenceCode = `OSSCPS/BOCT-${issueYear}/${enrollmentCode}`;
   const tuitionFee = 60000;
@@ -106,12 +107,71 @@ function getDuesLetterContext(application: StudentApplication, issueYear: number
   };
 }
 
-export async function renderPdfBuffer(application: StudentApplication): Promise<Buffer> {
-  const templateName = templateMap[application.documentType];
+function getPdfOptions(documentType: DocumentType) {
+  if (documentType === "admission_slip") {
+    return {
+      width: "210mm",
+      height: "148.5mm",
+      printBackground: true,
+      preferCSSPageSize: true,
+      scale: 0.68,
+      margin: {
+        top: "0",
+        right: "0",
+        bottom: "0",
+        left: "0"
+      }
+    };
+  }
+
+  return {
+    format: "A4" as const,
+    printBackground: true
+  };
+}
+
+async function loadTemplate(documentType: DocumentType): Promise<handlebars.TemplateDelegate> {
+  const templateName = templateMap[documentType];
   const templatePath = path.join(process.cwd(), "src", "templates", templateName);
   const templateRaw = await fs.readFile(templatePath, "utf8");
-  const compile = handlebars.compile(templateRaw);
+  return handlebars.compile(templateRaw);
+}
 
+async function launchBrowser() {
+  const localChromePath = LOCAL_CHROME_CANDIDATES.find((candidate) => fsSync.existsSync(candidate));
+
+  if (localChromePath) {
+    return puppeteer.launch({
+      executablePath: localChromePath,
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
+  }
+
+  return puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless
+  });
+}
+
+export async function renderTemplateBuffer(documentType: DocumentType, context: Record<string, unknown>): Promise<Buffer> {
+  const compile = await loadTemplate(documentType);
+  const html = compile(context);
+  const browser = await launchBrowser();
+
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf(getPdfOptions(documentType));
+    return Buffer.from(pdfBuffer);
+  } finally {
+    await browser.close();
+  }
+}
+
+export async function renderPdfBuffer(application: StudentApplication): Promise<Buffer> {
   const issueDate = new Date();
   const formattedDate = issueDate
     .toLocaleDateString("en-GB", {
@@ -120,6 +180,7 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
       year: "numeric"
     })
     .replace(/\//g, "-");
+  const formattedDateSlash = formattedDate.replace(/-/g, "/");
 
   const refNo = `AS/${application.documentType === "bonafide_certificate" ? "BFC" : application.documentType === "admission_slip" ? "ADM" : "DOC"}/${application.id.slice(0, 8).toUpperCase()}`;
   const issueYear = issueDate.getFullYear();
@@ -127,8 +188,8 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
   const courseEndYear = issueYear + 4;
   const enrollmentNo = application.rollNumber || application.id.slice(0, 8).toUpperCase();
   const guardianName = application.fatherName || "________________________";
-  const admissionSlipContext = getAdmissionSlipContext(application, issueDate, formattedDate);
-  const duesLetterContext = getDuesLetterContext(application, issueYear, sessionRange);
+  const admissionSlipContext = getLegacyAdmissionSlipContext(application, issueDate, formattedDateSlash);
+  const duesLetterContext = getLegacyDuesLetterContext(application, issueYear, sessionRange);
 
   let logoDataUri = "";
   try {
@@ -148,9 +209,10 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     headerBannerDataUri = "";
   }
 
-  const html = compile({
+  return renderTemplateBuffer(application.documentType, {
     ...application,
     issuedDate: formattedDate,
+    issuedDateSlash: formattedDateSlash,
     refNo,
     issueYear,
     courseEndYear,
@@ -162,47 +224,4 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     ...admissionSlipContext,
     ...duesLetterContext
   });
-
-  const localChromePath = LOCAL_CHROME_CANDIDATES.find((candidate) => fsSync.existsSync(candidate));
-
-  const browser = localChromePath
-    ? await puppeteer.launch({
-        executablePath: localChromePath,
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
-      })
-    : await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless
-      });
-
-  try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    const pdfOptions =
-      application.documentType === "admission_slip"
-        ? {
-            width: "210mm",
-            height: "148.5mm",
-            printBackground: true,
-            preferCSSPageSize: true,
-            scale: 0.68,
-            margin: {
-              top: "0",
-              right: "0",
-              bottom: "0",
-              left: "0"
-            }
-          }
-        : {
-            format: "A4" as const,
-            printBackground: true
-          };
-    const pdfBuffer = await page.pdf(pdfOptions);
-    return Buffer.from(pdfBuffer);
-  } finally {
-    await browser.close();
-  }
 }

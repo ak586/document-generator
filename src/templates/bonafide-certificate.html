@@ -271,7 +271,7 @@
     </style>
   </head>
   <body>
-      <div class="page">
+    <div class="page">
       <div class="top-strip">
         {{#if headerBannerDataUri}}
         <img class="header-banner" src="{{headerBannerDataUri}}" alt="Document Header Banner" />
@@ -292,13 +292,13 @@
 
         <p class="lead">
           This is to certify that, <strong>{{studentName}}</strong>, S/D/O:- <strong>{{guardianName}}</strong>, is a Bonafide student of
-          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, pursuing <strong>Bachelor of Occupational Therapy</strong>.
-          His/her Enrolment number is <strong>{{enrollmentNo}}</strong>. The student is currently enrolled in the 1st Year Course Session
-          <strong>{{sessionRange}}</strong>.
+          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, pursuing <strong>{{bonafideCourseName}}</strong>. His/her
+          Enrolment number is <strong>{{enrollmentNo}}</strong>. The student is currently enrolled in the
+          <strong>{{bonafideCurrentYearLabel}}</strong> Course Session <strong>{{sessionRange}}</strong>.
         </p>
 
-        <p class="detail">Program Name&nbsp;&nbsp;&nbsp;&nbsp;: Bachelor of Occupational Therapy</p>
-        <p class="detail">Course Duration&nbsp;&nbsp;: 4 Years [{{issueYear}}-{{courseEndYear}}]</p>
+        <p class="detail">Program Name&nbsp;&nbsp;&nbsp;&nbsp;: {{bonafideCourseName}}</p>
+        <p class="detail">Course Duration&nbsp;&nbsp;: {{bonafideProgramDuration}}</p>
 
         <p class="section-title">Degree Fee Structure for Paramedical Courses</p>
         <table class="fee-table">
@@ -306,69 +306,21 @@
             <tr>
               <th>PARTICULERS</th>
               <th>TOTAL FEE</th>
-              <th>1st Year Fee</th>
-              <th>2nd Year Fee</th>
-              <th>3rd Year Fee</th>
-              <th>4th Year Fee</th>
+              {{#each bonafideYearHeaders}}
+              <th>{{this}}</th>
+              {{/each}}
             </tr>
           </thead>
           <tbody>
+            {{#each bonafideFeeRows}}
             <tr>
-              <td>Tuition Fee</td>
-              <td>&#8377; 240,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
+              <td>{{label}}</td>
+              <td>&#8377; {{total}}</td>
+              {{#each yearlyAmounts}}
+              <td>&#8377; {{this}}</td>
+              {{/each}}
             </tr>
-            <tr>
-              <td>LAB/Library Fee</td>
-              <td>&#8377; 20,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-            </tr>
-            <tr>
-              <td>Examination Fee</td>
-              <td>&#8377; 40,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
-            </tr>
-            <tr>
-              <td>Hostel Fee</td>
-              <td>&#8377; 240,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-            </tr>
-            <tr>
-              <td>Paid Amount</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 0.00</td>
-              <td>&#8377; 0.00</td>
-              <td>&#8377; 0.00</td>
-            </tr>
-            <tr>
-              <td>Dues Amount</td>
-              <td>&#8377; 535,000.00</td>
-              <td>&#8377; 130,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-            </tr>
-            <tr>
-              <td>G.Total</td>
-              <td>&#8377; 535,000.00</td>
-              <td>&#8377; 130,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-            </tr>
+            {{/each}}
           </tbody>
         </table>
 
@@ -376,24 +328,24 @@
         <table class="bank-table">
           <tbody>
             <tr>
-              <td>Account Holder Nam</td>
-              <td>OM SRI SAI COLLEGE OF PARAMEDICAL AND SCIENCES</td>
+              <td>Account Holder Name</td>
+              <td>{{bankAccountHolderName}}</td>
             </tr>
             <tr>
               <td>Account Number</td>
-              <td>132805500837</td>
+              <td>{{bankAccountNumber}}</td>
             </tr>
             <tr>
               <td>IFSC Code</td>
-              <td>ICIC0001328</td>
+              <td>{{bankIfscCode}}</td>
             </tr>
             <tr>
               <td>Type of Account</td>
-              <td>Current Account</td>
+              <td>{{bankAccountType}}</td>
             </tr>
             <tr>
               <td>Bank &amp; Branch</td>
-              <td>ICICI, MADHUBANI</td>
+              <td>{{bankBranch}}</td>
             </tr>
           </tbody>
         </table>

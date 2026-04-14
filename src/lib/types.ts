@@ -1,4 +1,22 @@
-export type DocumentType = "bonafide_certificate" | "transcript_request" | "admission_slip" | "dues_letter";
+export type DocumentType = "bonafide_certificate" | "transcript_request" | "admission_slip" | "dues_letter" | "admission_letter";
+
+export type GeneratedDocumentType = "bonafide_certificate" | "dues_letter" | "admission_slip" | "admission_letter";
+
+export interface CourseDefinition {
+  id: string;
+  shortName: string;
+  fullName: string;
+  durationYears: number;
+  referenceCode: string;
+}
+
+export interface BankDetails {
+  accountHolderName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountType: string;
+  bankBranch: string;
+}
 
 export type AdmissionSlipFeeType = "academic" | "hostel" | "transport";
 
@@ -15,6 +33,24 @@ export interface AdmissionSlipMetadata {
 
 export interface ApplicationMetadata {
   admissionSlip?: AdmissionSlipMetadata;
+}
+
+export interface AdminStudentRecordInput {
+  studentName: string;
+  fatherName: string;
+  dateOfBirth: string;
+  mobileNumber: string;
+  courseId: string;
+  enrollmentNo: string;
+  currentYear: number;
+  startYear: number;
+  referenceNo: string;
+}
+
+export interface GeneratedDocumentLink {
+  type: GeneratedDocumentType;
+  label: string;
+  pdfUrl: string;
 }
 
 export type ApplicationStatus = "submitted" | "approved" | "rejected";

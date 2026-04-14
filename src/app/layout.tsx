@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ReactNode } from "react";
 
 export const metadata = {
-  title: "Om Sri Sai Pharmacy College of Education",
-  description: "Student document request and admin review portal"
+  title: "Om Sri Sai Academic Document Desk",
+  description: "Admin-first academic document generation portal"
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -13,36 +13,24 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <div className="header-shell">
           <header className="site-header">
-            <Link href="/" className="logo-link" aria-label="Om Sri Sai Pharmacy College of Education">
-              <img src="/om-shri-collage-logo.png" alt="Om Sri Sai Pharmacy College of Education Logo" className="college-logo" />
+            <Link href="/" className="logo-link" aria-label="Om Sri Sai College of Paramedical and Sciences">
+              <img src="/om-shri-collage-logo.png" alt="Om Sri Sai College of Paramedical and Sciences Logo" className="college-logo" />
             </Link>
 
             <nav className="top-nav">
               <Link className="top-nav-link active" href="/">
                 Home
               </Link>
-              <a className="top-nav-link" href="#">
-                About Us
-              </a>
-              <a className="top-nav-link" href="#">
-                Academic Program
-              </a>
-              <Link className="top-nav-link" href="/student">
-                Admission
+              <Link className="top-nav-link" href="/admin">
+                Admin Desk
               </Link>
-              <a className="top-nav-link" href="#">
-                Placement
-              </a>
-              <a className="top-nav-link" href="#">
-                Gallery
-              </a>
-              <a className="top-nav-link" href="#">
-                Contact Us
-              </a>
+              <Link className="top-nav-link" href="/student">
+                Student Form
+              </Link>
             </nav>
 
-            <Link className="top-cta" href="/student">
-              Enquiry
+            <Link className="top-cta" href="/admin">
+              Admin Login
             </Link>
           </header>
         </div>
@@ -51,7 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="bg-shape bg-shape-two" />
         <div className="container">
           <div className="portal-topline">
-            <p className="portal-eyebrow">Om Sri Sai Pharmacy College of Education</p>
+            <p className="portal-eyebrow">Om Sri Sai College of Paramedical and Sciences</p>
             <Link className="portal-admin-link" href="/admin">
               Admin Login
             </Link>
