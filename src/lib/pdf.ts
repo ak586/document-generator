@@ -20,6 +20,8 @@ const LOCAL_CHROME_CANDIDATES = [
   "/Applications/Chromium.app/Contents/MacOS/Chromium"
 ].filter(Boolean) as string[];
 
+const SERVERLESS_CHROMIUM_BIN_PATH = path.join(process.cwd(), "node_modules", "@sparticuz", "chromium", "bin");
+
 function formatDateValue(value: string | undefined, fallback = ""): string {
   if (!value) return fallback;
 
@@ -151,7 +153,7 @@ async function launchBrowser() {
   return puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
+    executablePath: await chromium.executablePath(SERVERLESS_CHROMIUM_BIN_PATH),
     headless: chromium.headless
   });
 }
