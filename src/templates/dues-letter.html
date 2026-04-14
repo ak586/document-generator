@@ -45,10 +45,10 @@
         left: 50%;
         top: 49%;
         transform: translate(-50%, -50%);
-        width: 235px;
-        height: 235px;
+        width: 265px;
+        height: 265px;
         border-radius: 50%;
-        border: 3px solid rgba(12, 53, 102, 0.06);
+        border: 3px solid rgba(12, 53, 102, 0.05);
         z-index: 0;
       }
 
@@ -59,8 +59,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(12, 53, 102, 0.06);
-        font-size: 37px;
+        color: rgba(12, 53, 102, 0.05);
+        font-size: 39px;
         font-weight: 700;
         letter-spacing: 0.05em;
       }
@@ -68,7 +68,7 @@
       .content {
         position: relative;
         z-index: 1;
-        padding: 34px 44px 108px;
+        padding: 34px 34px 110px;
       }
 
       .meta-row {
@@ -76,42 +76,28 @@
         justify-content: space-between;
         font-size: 17px;
         font-weight: 700;
-        margin-bottom: 21px;
+        margin-bottom: 24px;
       }
 
       .title {
-        margin: 0 0 15px;
+        margin: 0 0 14px;
         text-align: center;
-        font-size: 17.8px;
+        font-size: 18px;
         font-weight: 800;
         text-transform: uppercase;
         text-decoration: underline;
       }
 
       .lead {
-        margin: 0 0 14px;
-        font-size: 14.8px;
-        line-height: 1.58;
+        margin: 0 0 13px;
+        font-size: 13.9px;
+        line-height: 1.52;
         text-align: justify;
+        font-weight: 600;
       }
 
       .lead strong {
         font-weight: 800;
-      }
-
-      .detail {
-        margin: 6px 0;
-        font-size: 14.2px;
-        line-height: 1.28;
-        font-weight: 700;
-      }
-
-      .section-title {
-        margin: 14px 0 8px;
-        text-align: center;
-        font-size: 14.7px;
-        font-weight: 800;
-        text-decoration: underline;
       }
 
       table {
@@ -119,50 +105,62 @@
         border-collapse: collapse;
       }
 
-      .fee-table th,
-      .fee-table td,
-      .bank-table th,
+      .dues-table {
+        margin-top: 10px;
+      }
+
+      .dues-table th,
+      .dues-table td,
       .bank-table td {
         border: 1px solid #222;
-        padding: 4px 4px;
-        font-size: 12.3px;
+        padding: 4px 6px;
+        font-size: 12.5px;
         line-height: 1.15;
       }
 
-      .fee-table th {
-        background: #f2f2f2;
-        text-align: center;
-        font-weight: 800;
-      }
-
-      .fee-table {
-        table-layout: fixed;
-      }
-
-      .fee-table td {
-        text-align: center;
-        font-weight: 700;
-      }
-
-      .fee-table td:first-child,
-      .bank-table td:first-child {
+      .dues-table th {
+        background: rgba(242, 242, 242, 0.86);
         text-align: left;
         font-weight: 800;
       }
 
+      .dues-table td {
+        font-weight: 700;
+      }
+
+      .dues-table td:last-child,
+      .dues-table th:last-child {
+        text-align: right;
+      }
+
+      .dues-table .sr-col {
+        width: 44px;
+        text-align: center;
+      }
+
+      .dues-table .amount-col {
+        width: 150px;
+      }
+
       .bank-title {
-        margin: 15px 0 7px;
-        font-size: 14.4px;
+        margin: 16px 0 7px;
+        font-size: 14px;
         font-weight: 800;
         text-decoration: underline;
       }
 
       .bank-table td {
         font-size: 12.1px;
+        font-weight: 700;
+      }
+
+      .bank-table td:first-child {
+        width: 240px;
+        font-weight: 800;
       }
 
       .sign-row {
-        margin-top: 28px;
+        margin-top: 16px;
         display: flex;
         justify-content: flex-end;
         align-items: flex-end;
@@ -170,8 +168,8 @@
       }
 
       .stamp-placeholder {
-        width: 104px;
-        height: 104px;
+        width: 108px;
+        height: 108px;
         border: 1.5px dashed #333;
         border-radius: 50%;
         display: flex;
@@ -271,7 +269,7 @@
     </style>
   </head>
   <body>
-      <div class="page">
+    <div class="page">
       <div class="top-strip">
         {{#if headerBannerDataUri}}
         <img class="header-banner" src="{{headerBannerDataUri}}" alt="Document Header Banner" />
@@ -284,99 +282,72 @@
 
       <div class="content">
         <div class="meta-row">
-          <span>Ref. no:- {{refNo}}</span>
+          <span>Ref. No. {{duesReferenceCode}}</span>
           <span>Date:- {{issuedDate}}</span>
         </div>
 
-        <p class="title">TO WHOM SO EVER IT MAY CONCERN</p>
+        <p class="title">DUES LETTER</p>
 
         <p class="lead">
-          This is to certify that, <strong>{{studentName}}</strong>, S/D/O:- <strong>{{guardianName}}</strong>, is a Bonafide student of
-          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, pursuing <strong>Bachelor of Occupational Therapy</strong>.
-          His/her Enrolment number is <strong>{{enrollmentNo}}</strong>. The student is currently enrolled in the 1st Year Course Session
-          <strong>{{sessionRange}}</strong>.
+          This is certify that <strong>{{studentName}}</strong>, S/D/O- <strong>{{guardianName}}</strong>, is student of our college
+          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, Madhubani pursuing
+          <strong>{{duesCourseName}}</strong>, His/her Enrolment No. is <strong>{{duesEnrollmentNo}}</strong>. This student is currently
+          enrolled in the <strong>{{duesYearLabel}}</strong> of Session <strong>{{duesSessionRange}}</strong>.
         </p>
 
-        <p class="detail">Program Name&nbsp;&nbsp;&nbsp;&nbsp;: Bachelor of Occupational Therapy</p>
-        <p class="detail">Course Duration&nbsp;&nbsp;: 4 Years [{{issueYear}}-{{courseEndYear}}]</p>
+        <p class="lead">This is with reference to your due amount of <strong>{{duesCourseShort}},{{duesYearLabel}}</strong>.</p>
 
-        <p class="section-title">Degree Fee Structure for Paramedical Courses</p>
-        <table class="fee-table">
+        <table class="dues-table">
           <thead>
             <tr>
-              <th>PARTICULERS</th>
-              <th>TOTAL FEE</th>
-              <th>1st Year Fee</th>
-              <th>2nd Year Fee</th>
-              <th>3rd Year Fee</th>
-              <th>4th Year Fee</th>
+              <th class="sr-col">S. No</th>
+              <th>Particulars</th>
+              <th class="amount-col">{{duesYearLabel}}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
+              <td class="sr-col">1</td>
               <td>Tuition Fee</td>
-              <td>&#8377; 240,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
+              <td>{{duesTuitionFee}}</td>
             </tr>
             <tr>
+              <td class="sr-col">2</td>
               <td>LAB/Library Fee</td>
-              <td>&#8377; 20,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
+              <td>{{duesLabFee}}</td>
             </tr>
             <tr>
+              <td class="sr-col">3</td>
               <td>Examination Fee</td>
-              <td>&#8377; 40,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
-              <td>&#8377; 10,000.00</td>
+              <td>{{duesExaminationFee}}</td>
             </tr>
             <tr>
+              <td class="sr-col">4</td>
               <td>Hostel Fee</td>
-              <td>&#8377; 240,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
-              <td>&#8377; 60,000.00</td>
+              <td>{{duesHostelFee}}</td>
             </tr>
             <tr>
+              <td class="sr-col">5</td>
               <td>Paid Amount</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 5,000.00</td>
-              <td>&#8377; 0.00</td>
-              <td>&#8377; 0.00</td>
-              <td>&#8377; 0.00</td>
+              <td>{{duesPaidAmount}}</td>
             </tr>
             <tr>
-              <td>Dues Amount</td>
-              <td>&#8377; 535,000.00</td>
-              <td>&#8377; 130,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-            </tr>
-            <tr>
-              <td>G.Total</td>
-              <td>&#8377; 535,000.00</td>
-              <td>&#8377; 130,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
-              <td>&#8377; 135,000.00</td>
+              <td class="sr-col"></td>
+              <td><strong>Total fee</strong></td>
+              <td><strong>{{duesTotalFee}}</strong></td>
             </tr>
           </tbody>
         </table>
+
+        <p class="lead" style="margin-top: 16px;">
+          You are requested to Deposit your dues amount of <strong>Rs. {{duesTotalFee}}/-</strong> of the following account details given below:-
+        </p>
 
         <p class="bank-title">College Bank Account Details:-</p>
         <table class="bank-table">
           <tbody>
             <tr>
-              <td>Account Holder Nam</td>
+              <td>Account Holder Name</td>
               <td>OM SRI SAI COLLEGE OF PARAMEDICAL AND SCIENCES</td>
             </tr>
             <tr>

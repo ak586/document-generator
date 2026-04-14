@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admission Slip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      background: #f2f2f2;
+      font-family: "Inter", sans-serif;
+      color: #111;
+    }
+
+    .slip {
+      width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border: 2px solid #444;
+      padding: 18px 22px 28px;
+    }
+
+    .ref-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .logo-box {
+      width: 120px;
+      height: 120px;
+      border: 1px dashed #888;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .logo-placeholder {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      padding: 10px;
+      line-height: 1.4;
+    }
+
+    .college-bar {
+      background: #0d1b44;
+      color: #fff;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .subtext {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 18px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .slip-title-wrap {
+      text-align: center;
+      margin: 16px 0 18px;
+    }
+
+    .slip-title {
+      display: inline-block;
+      background: #10224d;
+      color: #fff;
+      padding: 8px 26px;
+      border-radius: 10px;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .line-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 17px;
+      flex-wrap: wrap;
+    }
+
+    .line-row.nowrap {
+      flex-wrap: nowrap;
+    }
+
+    .label {
+      font-weight: 700;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .line-field {
+      flex: 1;
+      min-width: 120px;
+      border-bottom: 2px dotted #444;
+      height: 34px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .small-field {
+      width: 240px;
+      flex: 0 0 240px;
+    }
+
+    .medium-field {
+      width: 300px;
+      flex: 0 0 300px;
+    }
+
+    .course-field {
+      width: 220px;
+      flex: 0 0 220px;
+    }
+
+    .amount-row {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .amount-box {
+      display: flex;
+      align-items: stretch;
+      width: 320px;
+      height: 64px;
+      border: 2px solid #555;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .currency {
+      width: 72px;
+      background: #0d1b44;
+      color: #fff;
+      font-size: 42px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .amount-value {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-top: 4px;
+      margin-bottom: 34px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .box {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #444;
+      background: #fff;
+    }
+
+    .signature-section {
+      position: relative;
+      margin-top: 44px;
+      min-height: 140px;
+    }
+
+    .signature-line {
+      border-bottom: 2px dotted #444;
+      margin-bottom: 12px;
+      height: 1px;
+    }
+
+    .signature-label {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .stamp {
+      position: absolute;
+      right: 20px;
+      top: -30px;
+      width: 150px;
+      height: 150px;
+      border: 4px solid rgba(33, 67, 140, 0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: rgba(33, 67, 140, 0.8);
+      transform: rotate(-10deg);
+      background: transparent;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+
+      .slip {
+        border: 2px solid #444;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slip">
+
+    <div class="ref-row">
+      <span>Reference No:&nbsp;</span>
+      <span>{{admissionReferenceCode}}</span>
+    </div>
+
+    <div class="header">
+      <div class="logo-box">
+        {{#if logoDataUri}}
+        <img src="{{logoDataUri}}" alt="College Logo">
+        {{else}}
+        <div class="logo-placeholder">
+          Attach<br>Logo<br>Here
+        </div>
+        {{/if}}
+      </div>
+
+      <div>
+        <div class="college-bar">OM SRI SAI COLLEGE OF PARAMEDICAL AND SCIENCES</div>
+        <div class="subtext">
+          Affiliated by :- Bihar University of Health Sciences, Patna<br>
+          Madhepura, Pandaul, Madhubani - 847234 | Mob: 9031817638
+        </div>
+      </div>
+    </div>
+
+    <div class="slip-title-wrap">
+      <div class="slip-title">Admission Slip</div>
+    </div>
+
+    <div class="top-meta">
+      <div>SL.No: <strong>{{admissionSerialNumber}}</strong></div>
+      <div>Date: <strong>{{admissionSlipDate}}</strong></div>
+    </div>
+
+    <div class="line-row nowrap">
+      <div class="label">Name:</div>
+      <div class="line-field">{{studentName}}</div>
+    </div>
+
+    <div class="line-row nowrap">
+      <div class="label">Father's Name:</div>
+      <div class="line-field">{{fatherName}}</div>
+      <div class="label">Mob No:</div>
+      <div class="line-field small-field">{{phone}}</div>
+    </div>
+
+    <div class="line-row nowrap">
+      <div class="label">Date of Birth:</div>
+      <div class="line-field medium-field">{{admissionBirthDate}}</div>
+      <div class="label">Course:</div>
+      <div class="line-field course-field">{{admissionCourse}}</div>
+    </div>
+
+    <div class="amount-row">
+      <div class="line-row nowrap" style="margin-bottom:0;">
+        <div class="label">Amount (in Words):</div>
+        <div class="line-field">{{admissionAmountInWords}}</div>
+      </div>
+
+      <div class="amount-box">
+        <div class="currency">₹</div>
+        <div class="amount-value">{{admissionAmountValue}}/-</div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="line-row nowrap" style="margin-bottom:0; flex:1;">
+        <div class="label">Session:</div>
+        <div class="line-field" style="max-width:320px;">{{admissionSession}}</div>
+      </div>
+
+      <div class="checkbox-group">
+        <div class="check-item">
+          <div class="box" {{#if feeAcademicChecked}}style="background:#111;"{{/if}}></div>
+          <span>Academic</span>
+        </div>
+        <div class="check-item">
+          <div class="box" {{#if feeHostelChecked}}style="background:#111;"{{/if}}></div>
+          <span>Hostel</span>
+        </div>
+        <div class="check-item">
+          <div class="box" {{#if feeTransportChecked}}style="background:#111;"{{/if}}></div>
+          <span>Transport</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="signature-section">
+      <div class="signature-line"></div>
+      <div class="signature-label">Authority Signature</div>
+      <div class="stamp">ACCOUNTANT</div>
+    </div>
+
+  </div>
+</body>
+</html>

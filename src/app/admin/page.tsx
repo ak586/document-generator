@@ -19,6 +19,13 @@ function formatDate(dateIso: string): string {
   });
 }
 
+function formatDocumentType(documentType: StudentApplication["documentType"]): string {
+  if (documentType === "bonafide_certificate") return "Bonafide Certificate";
+  if (documentType === "transcript_request") return "Transcript Request";
+  if (documentType === "dues_letter") return "Dues Letter";
+  return "Admission Slip";
+}
+
 export default function AdminPage() {
   const [items, setItems] = useState<StudentApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -210,6 +217,8 @@ function RequestCard({
   onReview: (id: string, status: "approved" | "rejected") => Promise<void>;
   onGenerate: (id: string) => Promise<void>;
 }) {
+  const admissionSlip = item.metadata.admissionSlip;
+
   return (
     <div className="request-card">
       <div className="row" style={{ justifyContent: "space-between" }}>
@@ -221,16 +230,19 @@ function RequestCard({
 
       <div className="meta-grid">
         <p style={{ margin: 0 }}>
-          <strong>Requested Doc:</strong> {item.documentType}
+          <strong>Father's Name:</strong> {item.fatherName}
         </p>
         <p style={{ margin: 0 }}>
-          <strong>Semester:</strong> {item.semester}
+          <strong>Requested Doc:</strong> {formatDocumentType(item.documentType)}
         </p>
         <p style={{ margin: 0 }}>
           <strong>Email:</strong> {item.email}
         </p>
         <p style={{ margin: 0 }}>
           <strong>Phone:</strong> {item.phone}
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Semester:</strong> {item.semester}
         </p>
         <p style={{ margin: 0 }}>
           <strong>Submitted On:</strong> {formatDate(item.createdAt)}
@@ -256,6 +268,9 @@ function RequestCard({
             <strong>Name:</strong> {item.studentName}
           </p>
           <p>
+            <strong>Father's Name:</strong> {item.fatherName}
+          </p>
+          <p>
             <strong>Roll Number:</strong> {item.rollNumber}
           </p>
           <p>
@@ -279,6 +294,34 @@ function RequestCard({
           <p>
             <strong>Reviewed At:</strong> {item.reviewedAt ? formatDate(item.reviewedAt) : "-"}
           </p>
+          {admissionSlip ? (
+            <>
+              <p>
+                <strong>Slip Serial:</strong> {admissionSlip.serialNumber}
+              </p>
+              <p>
+                <strong>Reference Code:</strong> {admissionSlip.referenceCode}
+              </p>
+              <p>
+                <strong>Slip Date:</strong> {admissionSlip.slipDate}
+              </p>
+              <p>
+                <strong>Date of Birth:</strong> {admissionSlip.dateOfBirth}
+              </p>
+              <p>
+                <strong>Course:</strong> {admissionSlip.course}
+              </p>
+              <p>
+                <strong>Amount:</strong> {admissionSlip.amountValue}
+              </p>
+              <p>
+                <strong>Amount in Words:</strong> {admissionSlip.amountInWords}
+              </p>
+              <p>
+                <strong>Fee Type:</strong> {admissionSlip.feeTypes.join(", ")}
+              </p>
+            </>
+          ) : null}
         </div>
       </details>
 

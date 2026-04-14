@@ -33,7 +33,7 @@ a {
 .container {
   max-width: 1050px;
   margin: 0 auto;
-  padding: 30px 20px 48px;
+  padding: 22px 20px 48px;
   position: relative;
   z-index: 2;
 }
@@ -72,52 +72,97 @@ a {
 }
 
 .site-header {
-  background: linear-gradient(130deg, #0a6a51, #0d8f68);
-  border-radius: 22px;
-  padding: 20px 24px;
-  margin-bottom: 20px;
-  color: #f4fffa;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 24px 30px;
+  color: #1e1e1e;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  box-shadow: 0 14px 30px rgba(7, 72, 54, 0.28);
+  gap: 28px;
 }
 
-.eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.85;
+.header-shell {
+  background: #e6e6e7;
+  border-bottom: 1px solid #d4d4d4;
+  position: relative;
+  z-index: 3;
 }
 
-.site-title {
-  margin: 0;
-  font-size: 29px;
-  letter-spacing: 0.01em;
-  font-family: var(--font-serif), Georgia, serif;
+.logo-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
 }
 
-.nav {
+.college-logo {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+}
+
+.top-nav {
   display: flex;
-  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  flex: 1;
   flex-wrap: wrap;
 }
 
-.nav-link {
-  border: 1px solid rgba(230, 255, 246, 0.5);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 600;
-  background: rgba(251, 255, 253, 0.14);
-  transition: transform 150ms ease, background 150ms ease;
+.top-nav-link {
+  font-size: 21px;
+  font-weight: 700;
+  color: #1f1f1f;
+  transition: color 120ms ease;
+  white-space: nowrap;
 }
 
-.nav-link:hover {
-  transform: translateY(-1px);
-  background: rgba(251, 255, 253, 0.25);
+.top-nav-link:hover {
+  color: #da8a3a;
+}
+
+.top-nav-link.active {
+  color: #da8a3a;
+}
+
+.top-cta {
+  background: #da8a3a;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 14px 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 145px;
+  transition: opacity 120ms ease;
+}
+
+.top-cta:hover {
+  opacity: 0.9;
+}
+
+.portal-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.portal-eyebrow {
+  margin: 0;
+  color: #4f6f68;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.portal-admin-link {
+  font-weight: 700;
+  color: #b16f29;
 }
 
 h1,
@@ -206,6 +251,22 @@ h3 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #cfe2d8;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.checkbox-row input {
+  margin: 0;
 }
 
 .hero {
@@ -368,11 +429,32 @@ h3 {
 
 @media (max-width: 700px) {
   .site-header {
-    padding: 18px;
+    padding: 16px;
     flex-direction: column;
+    align-items: flex-start;
   }
 
-  .site-title {
-    font-size: 24px;
+  .top-nav {
+    gap: 16px;
+    justify-content: flex-start;
+  }
+
+  .top-nav-link {
+    font-size: 17px;
+  }
+
+  .top-cta {
+    font-size: 18px;
+    padding: 10px 24px;
+  }
+
+  .college-logo {
+    width: 125px;
+  }
+
+  .portal-topline {
+    gap: 10px;
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
