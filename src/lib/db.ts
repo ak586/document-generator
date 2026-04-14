@@ -7,5 +7,8 @@ if (!databaseUrl) {
 }
 
 export const db = new Pool({
-  connectionString: databaseUrl
+  connectionString: databaseUrl,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
