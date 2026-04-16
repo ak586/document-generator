@@ -1,20 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  buildDefaultReferenceNo,
-  formatOrdinal,
-  getAcademicYearLabel,
-  getCourseById,
-  getCourseSessionLabel
-} from "@/lib/course-catalog";
+import { buildDefaultReferenceNo, formatOrdinal, getAcademicYearLabel, getCourseById, getCourseSessionLabel } from "@/lib/course-catalog";
 import { getBankDetails } from "@/lib/bank-details";
 import { getRequiredFeeStructure } from "@/lib/fee-structures";
 import { renderTemplateBuffer } from "@/lib/pdf";
-import {
-  AdminStudentRecordInput,
-  GeneratedDocumentLink,
-  GeneratedDocumentType
-} from "@/lib/types";
+import { AdminStudentRecordInput, GeneratedDocumentLink, GeneratedDocumentType } from "@/lib/types";
 
 type StudentBundleContext = {
   studentName: string;
@@ -132,33 +122,78 @@ function amountToWords(amount: number): string {
   return `${parts.join(" ").trim()} Only`;
 }
 
+function sanitizeReferenceNo(referenceNo: string, fallback: string): string {
+  const trimmed = referenceNo.trim();
+  if (!trimmed || trimmed === "OSSCPS/" || trimmed === "OSSPCE/") return fallback;
+  return trimmed;
+}
+
+function createSlipSerialNumber(enrollmentNo: string): string {
+  const cleaned = enrollmentNo.replace(/[^A-Za-z0-9]/g, "");
+  if (!cleaned) return "001";
+  return cleaned.slice(-3).toUpperCase();
+}
+
+function createCompactEnrollmentNo(referenceCode: string, startYear: number, enrollmentNo: string): string {
+  const trimmed = enrollmentNo.trim();
+  const lastSegment = trimmed.split("/").filter(Boolean).at(-1) || trimmed;
+  return `${referenceCode}-${startYear}/${lastSegment}`;
+}
+
 async function readAssetAsDataUri(fileName: string, mimeType: string): Promise<string> {
   try {
-    console.log("📦 Reading asset:", fileName);
     const buffer = await fs.readFile(path.join(process.cwd(), "public", fileName));
     return `data:${mimeType};base64,${buffer.toString("base64")}`;
-  } catch (err) {
-    console.warn("⚠️ Asset not found:", fileName);
+  } catch {
     return "";
   }
 }
 
+function isPharmacyCourse(courseId: string): boolean {
+  return courseId === "b-pharm" || courseId === "d-pharm" || courseId === "b-pharm-lateral";
+}
+
+function getCollegeDisplayNameHtml(courseId: string): string {
+  return isPharmacyCourse(courseId)
+    ? "OM SRI SAI PHARMACY<br />COLLEGE OF EDUCATION"
+    : "Om Sri Sai College of Paramedical and Sciences";
+}
+
+function getCollegeDisplayNameText(courseId: string): string {
+  return isPharmacyCourse(courseId) ? "Om Sri Sai Pharmacy College of Education" : "Om Sri Sai College of Paramedical and Sciences";
+}
+
 async function buildStudentBundleContext(input: AdminStudentRecordInput): Promise<StudentBundleContext> {
-  console.log("🔍 Building student context");
-
   const course = getCourseById(input.courseId);
-  console.log("📚 Course:", course);
-
   const feeStructure = await getRequiredFeeStructure(input.courseId, input.startYear);
-  console.log("💰 Fee structure loaded");
-
   const bankDetails = getBankDetails(input.courseId);
-
   const issueDate = new Date();
   const issuedDate = formatDateDash(issueDate);
   const issuedDateSlash = formatDateSlash(issuedDate);
+  const normalizedCurrentYear = Math.max(1, Math.min(input.currentYear, course.durationYears));
+  const fallbackReference = buildDefaultReferenceNo(course, input.startYear, input.enrollmentNo);
+  const referenceNo = sanitizeReferenceNo(input.referenceNo, fallbackReference);
+  const bonafideYearHeaders = Array.from({ length: course.durationYears }, (_, index) => `${formatOrdinal(index + 1)} Year`);
+  const yearRecords = bonafideYearHeaders.map((_, index) => feeStructure.years[index]);
+  const yearlyTotals = yearRecords.map((year) => year.totalFee);
+  const yearlyPayments = yearRecords.map((_, index) => (index === 0 ? feeStructure.admissionPaymentDefault : 0));
+  const yearlyDues = yearlyTotals.map((amount, index) => amount - yearlyPayments[index]);
+  const firstYearRecord = yearRecords[0];
+  const firstYearDue = yearlyDues[0];
 
-  const logoDataUri = await readAssetAsDataUri("pharmacy-logo.jpeg", "image/jpeg");
+  const buildRow = (label: string, total: number, yearlyAmounts: number[]) => ({
+    label,
+    total: formatInr(total),
+    yearlyAmounts: yearlyAmounts.map(formatInr)
+  });
+
+  const logoDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("pharmacy-logo.jpeg", "image/jpeg")
+    : await readAssetAsDataUri("paramedical-logo.jpeg", "image/jpeg");
+  const watermarkDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
+    : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
+  const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
     studentName: input.studentName.trim(),
@@ -166,101 +201,160 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     dateOfBirth: formatDateOfBirth(input.dateOfBirth),
     mobileNumber: input.mobileNumber.trim(),
     enrollmentNo: input.enrollmentNo.trim(),
-    compactEnrollmentNo: input.enrollmentNo,
+    compactEnrollmentNo: createCompactEnrollmentNo(course.referenceCode, input.startYear, input.enrollmentNo),
     issuedDate,
     issuedDateSlash,
-    referenceNo: "AUTO",
+    referenceNo,
     startYear: input.startYear,
-    currentYear: input.currentYear,
-    currentYearLabel: "1st Year",
+    currentYear: normalizedCurrentYear,
+    currentYearLabel: `${formatOrdinal(normalizedCurrentYear)} Year`,
     academicYearLabel: getAcademicYearLabel(input.startYear),
     courseSessionLabel: getCourseSessionLabel(input.startYear, course.durationYears),
     courseFullName: course.fullName,
     courseShortName: course.shortName,
     courseReferenceCode: course.referenceCode,
     durationYears: course.durationYears,
-    durationLabel: `${course.durationYears} Years`,
+    durationLabel: `${course.durationYears} ${course.durationYears === 1 ? "Year" : "Years"}`,
     bankAccountHolderName: bankDetails.accountHolderName,
     bankAccountNumber: bankDetails.accountNumber,
     bankIfscCode: bankDetails.ifscCode,
     bankAccountType: bankDetails.accountType,
     bankBranch: bankDetails.bankBranch,
-    collegeDisplayNameText: "College",
-    collegeDisplayNameHtml: "College",
+    collegeDisplayNameText: getCollegeDisplayNameText(input.courseId),
+    collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
     logoDataUri,
-    watermarkDataUri: "",
-    headerBannerDataUri: "",
-    bonafideYearHeaders: [],
-    bonafideFeeRows: [],
-    bonafideTotalDue: "",
-    firstYearGrossTotal: "",
-    firstYearTuitionFee: "",
-    firstYearLabFee: "",
-    firstYearExaminationFee: "",
-    firstYearHostelFee: "",
-    firstYearTransportFee: "",
-    firstYearOtherFee: "",
-    hasFirstYearTransportFee: false,
-    hasFirstYearOtherFee: false,
-    firstYearPaidAmount: "",
-    firstYearDueAmount: "",
-    admissionAmountValue: "",
-    admissionAmountInWords: "",
-    admissionSlipSerialNumber: "001",
+    watermarkDataUri,
+    headerBannerDataUri,
+    bonafideYearHeaders,
+    bonafideFeeRows: [
+      buildRow("Tuition Fee", yearRecords.reduce((sum, year) => sum + year.tuitionFee, 0), yearRecords.map((year) => year.tuitionFee)),
+      buildRow("LAB/Library Fee", yearRecords.reduce((sum, year) => sum + year.labFee, 0), yearRecords.map((year) => year.labFee)),
+      buildRow("Examination Fee", yearRecords.reduce((sum, year) => sum + year.examinationFee, 0), yearRecords.map((year) => year.examinationFee)),
+      buildRow("Hostel Fee", yearRecords.reduce((sum, year) => sum + year.hostelFee, 0), yearRecords.map((year) => year.hostelFee)),
+      ...(yearRecords.some((year) => year.transportFee > 0)
+        ? [buildRow("Transport Fee", yearRecords.reduce((sum, year) => sum + year.transportFee, 0), yearRecords.map((year) => year.transportFee))]
+        : []),
+      ...(yearRecords.some((year) => year.otherFee > 0)
+        ? [buildRow("Other Fee", yearRecords.reduce((sum, year) => sum + year.otherFee, 0), yearRecords.map((year) => year.otherFee))]
+        : []),
+      buildRow("Paid Amount", feeStructure.admissionPaymentDefault, yearlyPayments),
+      buildRow("Dues Amount", yearlyDues.reduce((sum, amount) => sum + amount, 0), yearlyDues),
+      buildRow("G.Total", yearlyTotals.reduce((sum, amount) => sum + amount, 0), yearlyTotals)
+    ],
+    bonafideTotalDue: formatInr(yearlyDues.reduce((sum, amount) => sum + amount, 0)),
+    firstYearGrossTotal: formatInr(firstYearRecord.totalFee),
+    firstYearTuitionFee: formatInr(firstYearRecord.tuitionFee),
+    firstYearLabFee: formatInr(firstYearRecord.labFee),
+    firstYearExaminationFee: formatInr(firstYearRecord.examinationFee),
+    firstYearHostelFee: formatInr(firstYearRecord.hostelFee),
+    firstYearTransportFee: formatInr(firstYearRecord.transportFee),
+    firstYearOtherFee: formatInr(firstYearRecord.otherFee),
+    hasFirstYearTransportFee: firstYearRecord.transportFee > 0,
+    hasFirstYearOtherFee: firstYearRecord.otherFee > 0,
+    firstYearPaidAmount: formatInr(feeStructure.admissionPaymentDefault),
+    firstYearDueAmount: formatInr(firstYearDue),
+    admissionAmountValue: formatInr(feeStructure.admissionPaymentDefault),
+    admissionAmountInWords: amountToWords(feeStructure.admissionPaymentDefault),
+    admissionSlipSerialNumber: createSlipSerialNumber(input.enrollmentNo.trim()),
     feeAcademicChecked: true,
     feeHostelChecked: false,
     feeTransportChecked: false
   };
 }
 
+function buildDocumentContexts(context: StudentBundleContext): Record<GeneratedDocumentType, Record<string, unknown>> {
+  return {
+    bonafide_certificate: {
+      ...context,
+      refNo: context.referenceNo,
+      guardianName: context.fatherName,
+      enrollmentNo: context.compactEnrollmentNo,
+      sessionRange: context.courseSessionLabel,
+      issueYear: context.startYear,
+      courseEndYear: context.startYear + context.durationYears,
+      bonafideCourseName: context.courseFullName,
+      bonafideCurrentYearLabel: context.currentYearLabel,
+      bonafideProgramDuration: context.durationLabel
+    },
+    dues_letter: {
+      ...context,
+      guardianName: context.fatherName,
+      duesReferenceCode: context.referenceNo,
+      duesEnrollmentNo: context.compactEnrollmentNo,
+      duesSessionRange: context.courseSessionLabel,
+      duesCourseName: context.courseFullName,
+      duesCourseShort: context.courseReferenceCode,
+      duesYearLabel: "1st Year",
+      duesTuitionFee: context.firstYearTuitionFee,
+      duesLabFee: context.firstYearLabFee,
+      duesExaminationFee: context.firstYearExaminationFee,
+      duesHostelFee: context.firstYearHostelFee,
+      duesTransportFee: context.firstYearTransportFee,
+      duesOtherFee: context.firstYearOtherFee,
+      duesPaidAmount: context.firstYearPaidAmount,
+      duesGrossTotalFee: context.firstYearGrossTotal,
+      duesNetPayable: context.firstYearDueAmount
+    },
+    admission_slip: {
+      ...context,
+      admissionReferenceCode: context.referenceNo,
+      admissionEnrollmentNo: context.enrollmentNo,
+      admissionSerialNumber: context.admissionSlipSerialNumber,
+      admissionSlipDate: context.issuedDateSlash,
+      admissionBirthDate: context.dateOfBirth,
+      admissionCourse: context.courseShortName,
+      admissionAmountInWords: context.admissionAmountInWords,
+      admissionAmountValue: context.admissionAmountValue,
+      admissionSession: context.courseSessionLabel
+    },
+    admission_letter: {
+      ...context,
+      guardianName: context.fatherName,
+      programName: context.courseFullName,
+      programDuration: context.durationLabel,
+      academicYear: context.courseSessionLabel,
+      admissionLetterReferenceNo: context.referenceNo,
+      admissionLetterEnrollmentNo: context.referenceNo
+    }
+  };
+}
+
 export async function generateDocumentBundle(input: AdminStudentRecordInput): Promise<GeneratedDocumentLink[]> {
-  console.log("🚀 START generateDocumentBundle");
-
   const context = await buildStudentBundleContext(input);
-
+  const documentContexts = buildDocumentContexts(context);
   const shouldPersistToDisk = !process.env.VERCEL;
-  console.log("🌍 VERCEL:", process.env.VERCEL);
-  console.log("💾 Persist:", shouldPersistToDisk);
-
   const diskDir = path.join(process.cwd(), "public", "generated");
+  const safeEnrollment = context.enrollmentNo.replace(/[^a-zA-Z0-9_-]/g, "") || "student";
+  const generatedAt = Date.now();
 
   if (shouldPersistToDisk) {
     await fs.mkdir(diskDir, { recursive: true });
   }
 
-  const documents: GeneratedDocumentType[] = [
-    "bonafide_certificate",
-    "dues_letter",
-    "admission_slip",
-    "admission_letter"
+  const documents: Array<{ type: GeneratedDocumentType; label: string }> = [
+    { type: "bonafide_certificate", label: "Bonafide Certificate" },
+    { type: "dues_letter", label: "Dues Letter" },
+    { type: "admission_slip", label: "Admission Slip" },
+    { type: "admission_letter", label: "Admission Letter" }
   ];
 
   return Promise.all(
-    documents.map(async (type, i) => {
-      console.log("🛠 Generating:", type);
+    documents.map(async (document, index) => {
+      const pdfBuffer = await renderTemplateBuffer(document.type, documentContexts[document.type]);
+      const fileName = `${document.type}-${safeEnrollment}-${generatedAt + index}.pdf`;
 
-      try {
-        const pdfBuffer = await renderTemplateBuffer(type, context);
-
-        if (shouldPersistToDisk) {
-          const fileName = `${type}-${Date.now() + i}.pdf`;
-          await fs.writeFile(path.join(diskDir, fileName), pdfBuffer);
-        }
-
-        console.log("✅ Done:", type);
-
-        return {
-          type,
-          label: type,
-          fileName: `${type}.pdf`,
-          pdfUrl: "",
-          pdfBase64: pdfBuffer.toString("base64")
-        };
-      } catch (err: any) {
-        console.error("💥 ERROR in:", type);
-        console.error(err?.message, err?.stack);
-        throw err;
+      if (shouldPersistToDisk) {
+        await fs.writeFile(path.join(diskDir, fileName), pdfBuffer);
       }
+
+      return {
+        type: document.type,
+        label: document.label,
+        fileName,
+        pdfUrl: shouldPersistToDisk ? `/generated/${fileName}` : "",
+        pdfBase64: shouldPersistToDisk ? undefined : pdfBuffer.toString("base64")
+      };
     })
   );
 }
+

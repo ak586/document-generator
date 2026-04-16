@@ -24,8 +24,7 @@ const SERVERLESS_CHROMIUM_BIN_PATH = path.join(process.cwd(), "node_modules", "@
 let serverlessExecutablePathPromise: Promise<string> | null = null;
 let serverlessHindiFontPromise: Promise<string> | null = null;
 
-const NOTO_SANS_DEVANAGARI_FONT_URL =
-  "https://raw.githubusercontent.com/notofonts/devanagari/main/fonts/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf";
+const NOTO_SANS_DEVANAGARI_FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansDevanagari-Regular.ttf");
 
 function isPharmacyCourseName(course: string | undefined): boolean {
   if (!course) return false;
@@ -61,7 +60,7 @@ async function ensureServerlessFonts() {
   if (!process.env.VERCEL) return;
 
   if (!serverlessHindiFontPromise) {
-    serverlessHindiFontPromise = chromium.font(NOTO_SANS_DEVANAGARI_FONT_URL);
+    serverlessHindiFontPromise = chromium.font(NOTO_SANS_DEVANAGARI_FONT_PATH);
   }
 
   await serverlessHindiFontPromise;

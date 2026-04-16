@@ -5,8 +5,14 @@ const nextConfig = {
       bodySizeLimit: "2mb"
     },
     outputFileTracingIncludes: {
-      "/api/admin/applications/[id]/generate": ["./node_modules/@sparticuz/chromium/bin/**/*"],
-      "/api/admin/generate-documents": ["./node_modules/@sparticuz/chromium/bin/**/*"]
+      "/api/admin/applications/[id]/generate": [
+        "./node_modules/@sparticuz/chromium/bin/**/*",
+        "./public/fonts/**/*"
+      ],
+      "/api/admin/generate-documents": [
+        "./node_modules/@sparticuz/chromium/bin/**/*",
+        "./public/fonts/**/*"
+      ]
     }
   }
 };
