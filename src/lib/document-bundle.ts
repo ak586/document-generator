@@ -33,6 +33,7 @@ type StudentBundleContext = {
   bankBranch: string;
   collegeDisplayNameText: string;
   collegeDisplayNameHtml: string;
+  devanagariFontDataUri: string;
   logoDataUri: string;
   watermarkDataUri: string;
   headerBannerDataUri: string;
@@ -193,6 +194,7 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
   const watermarkDataUri = isPharmacyCourse(input.courseId)
     ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
     : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
+  const devanagariFontDataUri = await readAssetAsDataUri("fonts/NotoSansDevanagari-Regular.ttf", "font/ttf");
   const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
@@ -222,6 +224,7 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     bankBranch: bankDetails.bankBranch,
     collegeDisplayNameText: getCollegeDisplayNameText(input.courseId),
     collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
+    devanagariFontDataUri,
     logoDataUri,
     watermarkDataUri,
     headerBannerDataUri,
@@ -357,4 +360,3 @@ export async function generateDocumentBundle(input: AdminStudentRecordInput): Pr
     })
   );
 }
-

@@ -275,6 +275,15 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     watermarkDataUri = "";
   }
 
+  let devanagariFontDataUri = "";
+  try {
+    const fontPath = path.join(process.cwd(), "public", "fonts", "NotoSansDevanagari-Regular.ttf");
+    const fontBuffer = await fs.readFile(fontPath);
+    devanagariFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
+  } catch {
+    devanagariFontDataUri = "";
+  }
+
   let headerBannerDataUri = "";
   try {
     const bannerPath = path.join(process.cwd(), "public", "om-sri-sai-document-header.png");
@@ -296,6 +305,7 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     guardianName,
     logoDataUri,
     watermarkDataUri,
+    devanagariFontDataUri,
     headerBannerDataUri,
     collegeDisplayNameHtml: getLegacyCollegeDisplayNameHtml(legacyCourseName),
     ...admissionSlipContext,
