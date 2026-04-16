@@ -220,6 +220,11 @@ export async function renderTemplateBuffer(documentType: DocumentType, context: 
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.evaluate(async () => {
+      if ("fonts" in document) {
+        await document.fonts.ready;
+      }
+    });
     const pdfBuffer = await page.pdf(getPdfOptions(documentType));
     return Buffer.from(pdfBuffer);
   } finally {
