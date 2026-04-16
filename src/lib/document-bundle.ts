@@ -31,7 +31,10 @@ type StudentBundleContext = {
   bankIfscCode: string;
   bankAccountType: string;
   bankBranch: string;
+  collegeDisplayNameText: string;
+  collegeDisplayNameHtml: string;
   logoDataUri: string;
+  watermarkDataUri: string;
   headerBannerDataUri: string;
   bonafideYearHeaders: string[];
   bonafideFeeRows: Array<{ label: string; total: string; yearlyAmounts: string[] }>;
@@ -121,7 +124,7 @@ function amountToWords(amount: number): string {
 
 function sanitizeReferenceNo(referenceNo: string, fallback: string): string {
   const trimmed = referenceNo.trim();
-  if (!trimmed || trimmed === "OSSCPS/") return fallback;
+  if (!trimmed || trimmed === "OSSCPS/" || trimmed === "OSSPCE/") return fallback;
   return trimmed;
 }
 
@@ -146,10 +149,24 @@ async function readAssetAsDataUri(fileName: string, mimeType: string): Promise<s
   }
 }
 
+function isPharmacyCourse(courseId: string): boolean {
+  return courseId === "b-pharm" || courseId === "d-pharm" || courseId === "b-pharm-lateral";
+}
+
+function getCollegeDisplayNameHtml(courseId: string): string {
+  return isPharmacyCourse(courseId)
+    ? "OM SRI SAI PHARMACY<br />COLLEGE OF EDUCATION"
+    : "Om Sri Sai College of Paramedical and Sciences";
+}
+
+function getCollegeDisplayNameText(courseId: string): string {
+  return isPharmacyCourse(courseId) ? "Om Sri Sai Pharmacy College of Education" : "Om Sri Sai College of Paramedical and Sciences";
+}
+
 async function buildStudentBundleContext(input: AdminStudentRecordInput): Promise<StudentBundleContext> {
   const course = getCourseById(input.courseId);
   const feeStructure = await getRequiredFeeStructure(input.courseId, input.startYear);
-  const bankDetails = getBankDetails();
+  const bankDetails = getBankDetails(input.courseId);
   const issueDate = new Date();
   const issuedDate = formatDateDash(issueDate);
   const issuedDateSlash = formatDateSlash(issuedDate);
@@ -170,7 +187,12 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     yearlyAmounts: yearlyAmounts.map(formatInr)
   });
 
-  const logoDataUri = await readAssetAsDataUri("om-shri-collage-logo.png", "image/png");
+  const logoDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("pharmacy-logo.jpeg", "image/jpeg")
+    : await readAssetAsDataUri("paramedical-logo.jpeg", "image/jpeg");
+  const watermarkDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
+    : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
   const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
@@ -198,7 +220,10 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     bankIfscCode: bankDetails.ifscCode,
     bankAccountType: bankDetails.accountType,
     bankBranch: bankDetails.bankBranch,
+    collegeDisplayNameText: getCollegeDisplayNameText(input.courseId),
+    collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
     logoDataUri,
+    watermarkDataUri,
     headerBannerDataUri,
     bonafideYearHeaders,
     bonafideFeeRows: [
@@ -273,6 +298,7 @@ function buildDocumentContexts(context: StudentBundleContext): Record<GeneratedD
     admission_slip: {
       ...context,
       admissionReferenceCode: context.referenceNo,
+      admissionEnrollmentNo: context.enrollmentNo,
       admissionSerialNumber: context.admissionSlipSerialNumber,
       admissionSlipDate: context.issuedDateSlash,
       admissionBirthDate: context.dateOfBirth,

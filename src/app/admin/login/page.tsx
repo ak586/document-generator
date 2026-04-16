@@ -1,12 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const router = useRouter();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,8 +25,7 @@ export default function AdminLoginPage() {
 
     if (res.ok) {
       const nextPath = new URLSearchParams(window.location.search).get("next") || "/admin";
-      router.push(nextPath);
-      router.refresh();
+      window.location.assign(nextPath);
       return;
     }
 

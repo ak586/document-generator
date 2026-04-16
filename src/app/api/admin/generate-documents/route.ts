@@ -12,6 +12,7 @@ function validatePayload(body: AdminStudentRecordInput): string | null {
   if (!body.courseId.trim()) return "Course is required.";
   if (!body.dateOfBirth.trim()) return "Date of birth is required.";
   if (!body.mobileNumber.trim()) return "Mobile number is required.";
+  if (!/^\d{10}$/.test(body.mobileNumber.trim())) return "Mobile number must be exactly 10 digits.";
   if (!Number.isInteger(body.currentYear) || body.currentYear < 1) return "Current year is invalid.";
   if (!Number.isInteger(body.startYear) || body.startYear < 2000 || body.startYear > 2100) return "Start year is invalid.";
 

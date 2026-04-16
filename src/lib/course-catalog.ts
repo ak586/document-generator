@@ -1,9 +1,9 @@
 import { CourseDefinition } from "@/lib/types";
 
 export const COURSE_CATALOG: CourseDefinition[] = [
-  { id: "b-pharm", shortName: "B.Pharm", fullName: "Bachelor in Pharmacy", durationYears: 4, referenceCode: "BPHARM" },
-  { id: "b-pharm-lateral", shortName: "B.Pharm (Lateral)", fullName: "Bachelor in Pharmacy (Lateral)", durationYears: 3, referenceCode: "BPHARMLAT" },
-  { id: "d-pharm", shortName: "D.Pharm", fullName: "Diploma in Pharmacy", durationYears: 2, referenceCode: "DPHARM" },
+  { id: "b-pharm", shortName: "B.Pharm", fullName: "Bachelor in Pharmacy", durationYears: 4, referenceCode: "BP" },
+  { id: "b-pharm-lateral", shortName: "B.Pharm (Lateral)", fullName: "Bachelor in Pharmacy (Lateral)", durationYears: 3, referenceCode: "BPL" },
+  { id: "d-pharm", shortName: "D.Pharm", fullName: "Diploma in Pharmacy", durationYears: 2, referenceCode: "DP" },
   { id: "bpt", shortName: "B.P.T", fullName: "Bachelor in Physiotherapy", durationYears: 4, referenceCode: "BPT" },
   { id: "bot", shortName: "B.O.T", fullName: "Bachelor in Occupational Therapy", durationYears: 4, referenceCode: "BOCT" },
   { id: "bhm", shortName: "B.H.M", fullName: "Bachelor in Hospital Management", durationYears: 3, referenceCode: "BHM" },
@@ -51,6 +51,6 @@ export function getCourseSessionLabel(startYear: number, durationYears: number):
 }
 
 export function buildDefaultReferenceNo(course: CourseDefinition, startYear: number, enrollmentNo: string): string {
-  const suffix = String(startYear).slice(-2);
-  return `OSSCPS/${course.referenceCode}/${suffix}/${enrollmentNo}`;
+  const prefix = course.id === "b-pharm" || course.id === "d-pharm" || course.id === "b-pharm-lateral" ? "OSSPCE" : "OSSCPS";
+  return `${prefix}/${course.referenceCode}-${startYear}/${enrollmentNo}`;
 }

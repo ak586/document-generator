@@ -43,6 +43,14 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-IN").format(amount);
 }
 
+function getReferencePrefix(courseId: string): string {
+  return courseId === "b-pharm" || courseId === "d-pharm" || courseId === "b-pharm-lateral" ? "OSSPCE/" : "OSSCPS/";
+}
+
+function normalizeMobileNumber(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 10);
+}
+
 const DEFAULT_ADMISSION_PAYMENT = 10000;
 const DEFAULT_FIRST_YEAR_TOTAL = 135000;
 
@@ -61,6 +69,17 @@ function normalizeGeneratedDocuments(documents: GeneratedDocumentLink[]): Genera
       pdfUrl
     };
   });
+}
+
+function triggerDocumentDownload(generatedDocument: GeneratedDocumentLink) {
+  const link = window.document.createElement("a");
+  link.href = generatedDocument.pdfUrl;
+  link.download = generatedDocument.fileName;
+  link.target = "_blank";
+  link.rel = "noreferrer";
+  window.document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 export default function AdminPage() {
@@ -106,7 +125,7 @@ export default function AdminPage() {
     if (!selectedCourse || !form.enrollmentNo.trim()) {
       setForm((prev) => ({
         ...prev,
-        referenceNo: "OSSCPS/"
+        referenceNo: getReferencePrefix(prev.courseId)
       }));
       return;
     }
@@ -156,6 +175,11 @@ export default function AdminPage() {
 
     if (currentYearNumber > selectedCourse.durationYears) {
       setErrorMessage("Current year cannot exceed the selected course duration.");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(form.mobileNumber.trim())) {
+      setErrorMessage("Mobile number must be exactly 10 digits.");
       return;
     }
 
@@ -222,6 +246,14 @@ export default function AdminPage() {
     window.location.href = "/admin/login";
   }
 
+  function downloadAllDocuments() {
+    generatedDocuments.forEach((document, index) => {
+      window.setTimeout(() => {
+        triggerDocumentDownload(document);
+      }, index * 200);
+    });
+  }
+
   function resetForm() {
     setForm(INITIAL_FORM);
     setReferenceEdited(false);
@@ -261,7 +293,7 @@ export default function AdminPage() {
           <form ref={formRef} className="request-card admin-form-card" onSubmit={openReview}>
             <div className="admin-card-head">
               <h2 className="section-title">Student Data</h2>
-              <p className="section-subtitle">The reference number can be edited, but it starts with the `OSSCPS/` prefix automatically.</p>
+              <p className="section-subtitle">The reference number can be edited, but it starts with `OSSCPS/` for paramedical courses and `OSSPCE/` for pharmacy courses.</p>
             </div>
 
             <div className="grid two-col">
@@ -315,8 +347,11 @@ export default function AdminPage() {
                   id="mobileNumber"
                   className="input"
                   value={form.mobileNumber}
-                  onChange={(event) => updateField("mobileNumber", event.target.value)}
-                  placeholder="Enter mobile number"
+                  onChange={(event) => updateField("mobileNumber", normalizeMobileNumber(event.target.value))}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  placeholder="Enter 10-digit mobile number"
                   required
                 />
               </div>
@@ -394,7 +429,7 @@ export default function AdminPage() {
                   setReferenceEdited(true);
                   updateField("referenceNo", event.target.value);
                 }}
-                placeholder="OSSCPS/"
+                placeholder={getReferencePrefix(form.courseId)}
                 required
               />
             </div>
@@ -438,7 +473,7 @@ export default function AdminPage() {
               </div>
               <div className="admin-summary-item">
                 <span className="admin-summary-label">Reference</span>
-                <span className="admin-summary-value">{form.referenceNo || "OSSCPS/"}</span>
+                <span className="admin-summary-value">{form.referenceNo || getReferencePrefix(form.courseId)}</span>
               </div>
               <div className="admin-summary-item">
                 <span className="admin-summary-label">Generation Date</span>
@@ -470,8 +505,15 @@ export default function AdminPage() {
 
       {generatedDocuments.length ? (
         <div className="card">
-          <h2 className="section-title">Generated Documents</h2>
-          <p className="section-subtitle">Each file below was created from the current student record.</p>
+          <div className="admin-page-top" style={{ marginBottom: 20 }}>
+            <div>
+              <h2 className="section-title">Generated Documents</h2>
+              <p className="section-subtitle">Each file below was created from the current student record.</p>
+            </div>
+            <button className="button secondary tight" type="button" onClick={downloadAllDocuments}>
+              Download All
+            </button>
+          </div>
           <div className="generated-doc-grid">
             {generatedDocuments.map((document) => (
               <div className="generated-doc-card" key={document.type}>

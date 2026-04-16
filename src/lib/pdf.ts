@@ -27,6 +27,18 @@ let serverlessHindiFontPromise: Promise<string> | null = null;
 const NOTO_SANS_DEVANAGARI_FONT_URL =
   "https://raw.githubusercontent.com/notofonts/devanagari/main/fonts/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf";
 
+function isPharmacyCourseName(course: string | undefined): boolean {
+  if (!course) return false;
+  const normalized = course.trim().toLowerCase();
+  return normalized === "b.pharm" || normalized === "d.pharm" || normalized === "b.pharm (lateral)";
+}
+
+function getLegacyCollegeDisplayNameHtml(course: string | undefined): string {
+  return isPharmacyCourseName(course)
+    ? "OM SRI SAI PHARMACY<br />COLLEGE OF EDUCATION"
+    : "Om Sri Sai College of Paramedical and Sciences";
+}
+
 function configureServerlessChromiumEnv() {
   if (!process.env.VERCEL) return;
 
@@ -101,6 +113,7 @@ function getLegacyAdmissionSlipContext(application: StudentApplication, issueDat
 
   return {
     admissionReferenceCode: admissionSlip?.referenceCode || defaultReferenceCode,
+    admissionEnrollmentNo: application.rollNumber || application.id.slice(0, 8).toUpperCase(),
     admissionSerialNumber: admissionSlip?.serialNumber || application.id.slice(0, 3).toUpperCase(),
     admissionSlipDate: formatDateValue(admissionSlip?.slipDate, formattedDateSlash),
     admissionBirthDate: formatDateValue(admissionSlip?.dateOfBirth),
@@ -234,14 +247,33 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
   const guardianName = application.fatherName || "________________________";
   const admissionSlipContext = getLegacyAdmissionSlipContext(application, issueDate, formattedDateSlash);
   const duesLetterContext = getLegacyDuesLetterContext(application, issueYear, sessionRange);
+  const legacyCourseName =
+    application.documentType === "admission_slip" ? (application.metadata.admissionSlip as AdmissionSlipMetadata | undefined)?.course : undefined;
 
   let logoDataUri = "";
   try {
-    const logoPath = path.join(process.cwd(), "public", "om-shri-collage-logo.png");
+    const logoFileName = isPharmacyCourseName(
+      application.documentType === "admission_slip"
+        ? (application.metadata.admissionSlip as AdmissionSlipMetadata | undefined)?.course
+        : undefined
+    )
+      ? "pharmacy-logo.jpeg"
+      : "paramedical-logo.jpeg";
+    const logoPath = path.join(process.cwd(), "public", logoFileName);
     const logoBuffer = await fs.readFile(logoPath);
-    logoDataUri = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+    logoDataUri = `data:image/jpeg;base64,${logoBuffer.toString("base64")}`;
   } catch {
     logoDataUri = "";
+  }
+
+  let watermarkDataUri = "";
+  try {
+    const watermarkFileName = isPharmacyCourseName(legacyCourseName) ? "pharmacy-watermark.png" : "paramedical-watermark.png";
+    const watermarkPath = path.join(process.cwd(), "public", watermarkFileName);
+    const watermarkBuffer = await fs.readFile(watermarkPath);
+    watermarkDataUri = `data:image/png;base64,${watermarkBuffer.toString("base64")}`;
+  } catch {
+    watermarkDataUri = "";
   }
 
   let headerBannerDataUri = "";
@@ -264,7 +296,9 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     enrollmentNo,
     guardianName,
     logoDataUri,
+    watermarkDataUri,
     headerBannerDataUri,
+    collegeDisplayNameHtml: getLegacyCollegeDisplayNameHtml(legacyCourseName),
     ...admissionSlipContext,
     ...duesLetterContext
   });

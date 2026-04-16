@@ -24,9 +24,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link className="top-nav-link" href="/admin">
                 Admin Desk
               </Link>
-              <Link className="top-nav-link" href="/student">
-                Student Form
-              </Link>
             </nav>
 
             <Link className="top-cta" href="/admin">

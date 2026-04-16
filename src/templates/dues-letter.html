@@ -121,10 +121,9 @@
         font-size: 29px;
         line-height: 1.03;
         font-weight: 900;
-        text-transform: uppercase;
         color: #082a7a;
         text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
-        white-space: nowrap;
+        white-space: normal;
       }
 
       .hindi-line-1,
@@ -192,10 +191,10 @@
 
       .lead {
         margin: 0 0 13px;
-        font-size: 13.9px;
-        line-height: 1.52;
+        font-size: 15px;
+        line-height: 1.58;
         text-align: justify;
-        font-weight: 600;
+        font-weight: 500;
       }
 
       .lead strong {
@@ -216,7 +215,7 @@
       .bank-table td {
         border: 1px solid #222;
         padding: 4px 6px;
-        font-size: 12.5px;
+        font-size: 12.6px;
         line-height: 1.15;
       }
 
@@ -252,8 +251,8 @@
       }
 
       .bank-table td {
-        font-size: 12.1px;
-        font-weight: 700;
+        font-size: 12.6px;
+        font-weight: 800;
       }
 
       .bank-table td:first-child {
@@ -367,10 +366,7 @@
 
           <div class="right-section">
             <div class="orange-block">
-              <div class="college-title">
-                OM SRI SAI COLLEGE OF<br />
-                PARAMEDICAL AND SCIENCES
-              </div>
+              <div class="college-title">{{{collegeDisplayNameHtml}}}</div>
             </div>
 
             <div class="blue-block">
@@ -389,8 +385,8 @@
       </div>
 
       <div class="watermark">
-        {{#if logoDataUri}}
-        <img src="{{logoDataUri}}" alt="College Watermark" />
+        {{#if watermarkDataUri}}
+        <img src="{{watermarkDataUri}}" alt="College Watermark" />
         {{/if}}
       </div>
 
@@ -404,7 +400,7 @@
 
         <p class="lead">
           This is certify that <strong>{{studentName}}</strong>, S/D/O- <strong>{{guardianName}}</strong>, is student of our college
-          <strong>Om Sri Sai College of Paramedical and Sciences</strong>, Madhubani pursuing
+          <strong>{{collegeDisplayNameText}}</strong>, Madhubani pursuing
           <strong>{{duesCourseName}}</strong>. His/her Enrolment No. is <strong>{{duesEnrollmentNo}}</strong>. This student is currently
           enrolled in the <strong>{{duesYearLabel}}</strong> of Session <strong>{{duesSessionRange}}</strong>.
         </p>

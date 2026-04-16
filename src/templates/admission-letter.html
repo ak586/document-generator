@@ -121,10 +121,9 @@
         font-size: 29px;
         line-height: 1.03;
         font-weight: 900;
-        text-transform: uppercase;
         color: #082a7a;
         text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
-        white-space: nowrap;
+        white-space: normal;
       }
 
       .hindi-line-1,
@@ -202,8 +201,13 @@
       .lead {
         margin: 0 0 18px;
         font-size: 15px;
-        line-height: 1.65;
+        line-height: 1.6;
         text-align: justify;
+        font-weight: 500;
+      }
+
+      .lead strong {
+        font-weight: 800;
       }
 
       .detail-list {
@@ -215,7 +219,7 @@
         align-items: flex-start;
         gap: 12px;
         font-size: 15px;
-        line-height: 1.45;
+        line-height: 1.42;
         margin-bottom: 6px;
       }
 
@@ -227,7 +231,7 @@
 
       .detail-value {
         flex: 1;
-        font-weight: 600;
+        font-weight: 800;
       }
 
       .sign-row {
@@ -336,10 +340,7 @@
 
           <div class="right-section">
             <div class="orange-block">
-              <div class="college-title">
-                OM SRI SAI COLLEGE OF<br />
-                PARAMEDICAL AND SCIENCES
-              </div>
+              <div class="college-title">{{{collegeDisplayNameHtml}}}</div>
             </div>
 
             <div class="blue-block">
@@ -358,8 +359,8 @@
       </div>
 
       <div class="watermark">
-        {{#if logoDataUri}}
-        <img src="{{logoDataUri}}" alt="College Watermark" />
+        {{#if watermarkDataUri}}
+        <img src="{{watermarkDataUri}}" alt="College Watermark" />
         {{/if}}
       </div>
 
@@ -374,7 +375,7 @@
 
         <p class="lead">
           We are delighted to extend our warmest congratulations to you on your successful admission to the
-          <strong>{{programName}}</strong> program at <strong>Om Sri Sai College of Paramedical and Sciences</strong>. We are excited to
+          <strong>{{programName}}</strong> program at <strong>{{collegeDisplayNameText}}</strong>. We are excited to
           welcome you as a member of our esteemed institution.
         </p>
 
