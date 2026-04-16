@@ -22,6 +22,10 @@ const LOCAL_CHROME_CANDIDATES = [
 
 const SERVERLESS_CHROMIUM_BIN_PATH = path.join(process.cwd(), "node_modules", "@sparticuz", "chromium", "bin");
 let serverlessExecutablePathPromise: Promise<string> | null = null;
+let serverlessHindiFontPromise: Promise<string> | null = null;
+
+const NOTO_SANS_DEVANAGARI_FONT_URL =
+  "https://raw.githubusercontent.com/notofonts/devanagari/main/fonts/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf";
 
 function configureServerlessChromiumEnv() {
   if (!process.env.VERCEL) return;
@@ -39,6 +43,16 @@ function configureServerlessChromiumEnv() {
   if (!process.env.LD_LIBRARY_PATH.split(":").includes(lambdaLibPath)) {
     process.env.LD_LIBRARY_PATH = `${lambdaLibPath}:${process.env.LD_LIBRARY_PATH}`;
   }
+}
+
+async function ensureServerlessFonts() {
+  if (!process.env.VERCEL) return;
+
+  if (!serverlessHindiFontPromise) {
+    serverlessHindiFontPromise = chromium.font(NOTO_SANS_DEVANAGARI_FONT_URL);
+  }
+
+  await serverlessHindiFontPromise;
 }
 
 function formatDateValue(value: string | undefined, fallback = ""): string {
@@ -170,6 +184,7 @@ async function launchBrowser() {
   }
 
   configureServerlessChromiumEnv();
+  await ensureServerlessFonts();
 
   if (!serverlessExecutablePathPromise) {
     serverlessExecutablePathPromise = chromium.executablePath(SERVERLESS_CHROMIUM_BIN_PATH);
