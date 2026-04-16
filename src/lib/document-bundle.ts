@@ -34,6 +34,8 @@ type StudentBundleContext = {
   collegeDisplayNameText: string;
   collegeDisplayNameHtml: string;
   devanagariFontDataUri: string;
+  hindiHeaderFontDataUri: string;
+  hindiYellowFontDataUri: string;
   logoDataUri: string;
   watermarkDataUri: string;
   headerBannerDataUri: string;
@@ -195,6 +197,8 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
     : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
   const devanagariFontDataUri = await readAssetAsDataUri("fonts/NotoSansDevanagari-Regular.ttf", "font/ttf");
+  const hindiHeaderFontDataUri = await readAssetAsDataUri("fonts/Hind-Bold.ttf", "font/ttf");
+  const hindiYellowFontDataUri = await readAssetAsDataUri("fonts/Mukta-Bold.ttf", "font/ttf");
   const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
@@ -225,6 +229,8 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     collegeDisplayNameText: getCollegeDisplayNameText(input.courseId),
     collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
     devanagariFontDataUri,
+    hindiHeaderFontDataUri,
+    hindiYellowFontDataUri,
     logoDataUri,
     watermarkDataUri,
     headerBannerDataUri,

@@ -191,7 +191,12 @@ async function launchBrowser() {
     return puppeteer.launch({
       executablePath: localChromePath,
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--font-render-hinting=none",
+        "--disable-font-subpixel-positioning"
+      ]
     });
   }
 
@@ -205,7 +210,7 @@ async function launchBrowser() {
   const executablePath = await serverlessExecutablePathPromise;
 
   return puppeteer.launch({
-    args: chromium.args,
+    args: [...chromium.args, "--font-render-hinting=none", "--disable-font-subpixel-positioning"],
     defaultViewport: chromium.defaultViewport,
     executablePath,
     headless: chromium.headless
@@ -220,11 +225,8 @@ export async function renderTemplateBuffer(documentType: DocumentType, context: 
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
-    await page.evaluate(async () => {
-      if ("fonts" in document) {
-        await document.fonts.ready;
-      }
-    });
+    const fontsReadyHandle = await page.evaluateHandle("document.fonts.ready");
+    await fontsReadyHandle.dispose();
     const pdfBuffer = await page.pdf(getPdfOptions(documentType));
     return Buffer.from(pdfBuffer);
   } finally {
@@ -289,6 +291,24 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     devanagariFontDataUri = "";
   }
 
+  let hindiHeaderFontDataUri = "";
+  try {
+    const fontPath = path.join(process.cwd(), "public", "fonts", "Hind-Bold.ttf");
+    const fontBuffer = await fs.readFile(fontPath);
+    hindiHeaderFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
+  } catch {
+    hindiHeaderFontDataUri = "";
+  }
+
+  let hindiYellowFontDataUri = "";
+  try {
+    const fontPath = path.join(process.cwd(), "public", "fonts", "Mukta-Bold.ttf");
+    const fontBuffer = await fs.readFile(fontPath);
+    hindiYellowFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
+  } catch {
+    hindiYellowFontDataUri = "";
+  }
+
   let headerBannerDataUri = "";
   try {
     const bannerPath = path.join(process.cwd(), "public", "om-sri-sai-document-header.png");
@@ -311,6 +331,8 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     logoDataUri,
     watermarkDataUri,
     devanagariFontDataUri,
+    hindiHeaderFontDataUri,
+    hindiYellowFontDataUri,
     headerBannerDataUri,
     collegeDisplayNameHtml: getLegacyCollegeDisplayNameHtml(legacyCourseName),
     ...admissionSlipContext,

@@ -12,6 +12,24 @@
       }
       {{/if}}
 
+      {{#if hindiHeaderFontDataUri}}
+      @font-face {
+        font-family: "Embedded Hindi Header";
+        src: url("{{{hindiHeaderFontDataUri}}}") format("truetype");
+        font-weight: 700;
+        font-style: normal;
+      }
+      {{/if}}
+
+      {{#if hindiYellowFontDataUri}}
+      @font-face {
+        font-family: "Embedded Hindi Yellow";
+        src: url("{{{hindiYellowFontDataUri}}}") format("truetype");
+        font-weight: 700;
+        font-style: normal;
+      }
+      {{/if}}
+
       * {
         box-sizing: border-box;
       }
@@ -143,7 +161,7 @@
         line-height: 1.1;
         color: #111;
         white-space: nowrap;
-        font-family: "Embedded Devanagari", "Noto Sans Devanagari", "Nirmala UI", "Mangal", sans-serif;
+        font-family: "Noto Sans Devanagari", "Mangal", sans-serif;
       }
 
       .hindi-line-1 {
@@ -360,7 +378,7 @@
 
             <div class="yellow-block">
               <div class="hindi-line-2">
-                बिहार स्वास्थ्य विज्ञान विश्वविध्यालय, पटना द्वारा मान्यता प्राप्त
+                बिहार स्वास्थ्य विज्ञान विश्वविद्यालय, पटना द्वारा मान्यता प्राप्त
               </div>
             </div>
           </div>
