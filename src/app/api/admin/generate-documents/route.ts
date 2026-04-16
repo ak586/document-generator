@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
     const documents = await generateDocumentBundle(body);
     return NextResponse.json({ ok: true, documents });
   } catch (error: any) {
+    console.error("generate-documents failed", error);
     return NextResponse.json({ error: error.message || "Document generation failed." }, { status: 500 });
   }
 }
