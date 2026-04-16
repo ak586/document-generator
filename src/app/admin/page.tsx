@@ -84,6 +84,9 @@ function triggerDocumentDownload(generatedDocument: GeneratedDocumentLink) {
 
 export default function AdminPage() {
   const formRef = useRef<HTMLFormElement>(null);
+  const generatedSectionRef = useRef<HTMLDivElement>(null);
+  const downloadAllButtonRef = useRef<HTMLButtonElement>(null);
+  const guideTimeoutsRef = useRef<number[]>([]);
   const [form, setForm] = useState<AdminFormState>(INITIAL_FORM);
   const [referenceEdited, setReferenceEdited] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -92,6 +95,14 @@ export default function AdminPage() {
   const [generatedDocuments, setGeneratedDocuments] = useState<GeneratedDocumentLink[]>([]);
   const [feeStructureExists, setFeeStructureExists] = useState(true);
   const [feeStructureMessage, setFeeStructureMessage] = useState("");
+  const [downloadGuideTick, setDownloadGuideTick] = useState(0);
+  const [cursorGuide, setCursorGuide] = useState({
+    visible: false,
+    phase: "idle" as "idle" | "moving" | "clicking",
+    x: 0,
+    y: 0,
+    key: 0
+  });
 
   const selectedCourse = useMemo(() => {
     if (!form.courseId) return null;
@@ -112,6 +123,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     return () => {
+      guideTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
       generatedDocuments.forEach((document) => {
         if (document.pdfUrl.startsWith("blob:")) {
           URL.revokeObjectURL(document.pdfUrl);
@@ -119,6 +131,66 @@ export default function AdminPage() {
       });
     };
   }, [generatedDocuments]);
+
+  useEffect(() => {
+    guideTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    guideTimeoutsRef.current = [];
+
+    if (!downloadGuideTick || !generatedDocuments.length) {
+      return;
+    }
+
+    generatedSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+    const startX = Math.max(window.innerWidth - 170, 100);
+    const startY = Math.max(window.innerHeight * 0.22, 92);
+
+    setCursorGuide({
+      visible: true,
+      phase: "idle",
+      x: startX,
+      y: startY,
+      key: downloadGuideTick
+    });
+
+    guideTimeoutsRef.current.push(
+      window.setTimeout(() => {
+        const target = downloadAllButtonRef.current ?? generatedSectionRef.current;
+        if (!target) return;
+
+        const rect = target.getBoundingClientRect();
+        setCursorGuide({
+          visible: true,
+          phase: "moving",
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          key: downloadGuideTick
+        });
+      }, 520)
+    );
+
+    guideTimeoutsRef.current.push(
+      window.setTimeout(() => {
+        setCursorGuide((previous) => ({
+          ...previous,
+          phase: "clicking"
+        }));
+      }, 1420)
+    );
+
+    guideTimeoutsRef.current.push(
+      window.setTimeout(() => {
+        setCursorGuide((previous) => ({
+          ...previous,
+          visible: false,
+          phase: "idle"
+        }));
+      }, 2300)
+    );
+  }, [downloadGuideTick, generatedDocuments.length]);
 
   useEffect(() => {
     if (referenceEdited) return;
@@ -236,6 +308,7 @@ export default function AdminPage() {
         return normalizeGeneratedDocuments(data.documents || []);
       });
       setReviewOpen(false);
+      setDownloadGuideTick(Date.now());
     } finally {
       setIsSubmitting(false);
     }
@@ -504,13 +577,13 @@ export default function AdminPage() {
       </div>
 
       {generatedDocuments.length ? (
-        <div className="card">
+        <div className="card generated-documents-section" ref={generatedSectionRef}>
           <div className="admin-page-top" style={{ marginBottom: 20 }}>
             <div>
               <h2 className="section-title">Generated Documents</h2>
               <p className="section-subtitle">Each file below was created from the current student record.</p>
             </div>
-            <button className="button secondary tight" type="button" onClick={downloadAllDocuments}>
+            <button className="button secondary tight" type="button" onClick={downloadAllDocuments} ref={downloadAllButtonRef}>
               Download All
             </button>
           </div>
@@ -525,6 +598,19 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
+        </div>
+      ) : null}
+
+      {cursorGuide.visible ? (
+        <div
+          key={cursorGuide.key}
+          className={`cursor-guide cursor-guide-${cursorGuide.phase}`}
+          style={{ left: cursorGuide.x, top: cursorGuide.y }}
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M4 3l12.8 8.01-5.09 1.51 3.25 6-2.62 1.48-3.29-6L5 17.41V3z" fill="currentColor" />
+          </svg>
         </div>
       ) : null}
 
