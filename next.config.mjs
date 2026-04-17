@@ -7,11 +7,15 @@ const nextConfig = {
     outputFileTracingIncludes: {
       "/api/admin/applications/[id]/generate": [
         "./node_modules/@sparticuz/chromium/bin/**/*",
-        "./public/fonts/**/*"
+        "./public/fonts/**/*",
+        "./public/blue-text.png",
+        "./public/yellow-text.png"
       ],
       "/api/admin/generate-documents": [
         "./node_modules/@sparticuz/chromium/bin/**/*",
-        "./public/fonts/**/*"
+        "./public/fonts/**/*",
+        "./public/blue-text.png",
+        "./public/yellow-text.png"
       ]
     }
   }

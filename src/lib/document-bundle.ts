@@ -33,9 +33,9 @@ type StudentBundleContext = {
   bankBranch: string;
   collegeDisplayNameText: string;
   collegeDisplayNameHtml: string;
-  devanagariFontDataUri: string;
-  hindiHeaderFontDataUri: string;
-  hindiYellowFontDataUri: string;
+  footerEmail: string;
+  footerWebsite: string;
+  notoFontDataUri: string;
   logoDataUri: string;
   watermarkDataUri: string;
   headerBannerDataUri: string;
@@ -166,6 +166,14 @@ function getCollegeDisplayNameText(courseId: string): string {
   return isPharmacyCourse(courseId) ? "Om Sri Sai Pharmacy College of Education" : "Om Sri Sai College of Paramedical and Sciences";
 }
 
+function getFooterEmail(courseId: string): string {
+  return isPharmacyCourse(courseId) ? "info@osspce.com" : "info@osscps.in";
+}
+
+function getFooterWebsite(courseId: string): string {
+  return isPharmacyCourse(courseId) ? "osspce.com" : "osscps.in";
+}
+
 async function buildStudentBundleContext(input: AdminStudentRecordInput): Promise<StudentBundleContext> {
   const course = getCourseById(input.courseId);
   const feeStructure = await getRequiredFeeStructure(input.courseId, input.startYear);
@@ -196,9 +204,7 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
   const watermarkDataUri = isPharmacyCourse(input.courseId)
     ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
     : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
-  const devanagariFontDataUri = await readAssetAsDataUri("fonts/NotoSansDevanagari-Regular.ttf", "font/ttf");
-  const hindiHeaderFontDataUri = await readAssetAsDataUri("fonts/Hind-Bold.ttf", "font/ttf");
-  const hindiYellowFontDataUri = await readAssetAsDataUri("fonts/Mukta-Bold.ttf", "font/ttf");
+  const notoFontDataUri = await readAssetAsDataUri("fonts/NotoSansDevanagari-Regular.ttf", "font/ttf");
   const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
@@ -228,9 +234,9 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     bankBranch: bankDetails.bankBranch,
     collegeDisplayNameText: getCollegeDisplayNameText(input.courseId),
     collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
-    devanagariFontDataUri,
-    hindiHeaderFontDataUri,
-    hindiYellowFontDataUri,
+    footerEmail: getFooterEmail(input.courseId),
+    footerWebsite: getFooterWebsite(input.courseId),
+    notoFontDataUri,
     logoDataUri,
     watermarkDataUri,
     headerBannerDataUri,
@@ -331,14 +337,8 @@ function buildDocumentContexts(context: StudentBundleContext): Record<GeneratedD
 export async function generateDocumentBundle(input: AdminStudentRecordInput): Promise<GeneratedDocumentLink[]> {
   const context = await buildStudentBundleContext(input);
   const documentContexts = buildDocumentContexts(context);
-  const shouldPersistToDisk = !process.env.VERCEL;
-  const diskDir = path.join(process.cwd(), "public", "generated");
   const safeEnrollment = context.enrollmentNo.replace(/[^a-zA-Z0-9_-]/g, "") || "student";
   const generatedAt = Date.now();
-
-  if (shouldPersistToDisk) {
-    await fs.mkdir(diskDir, { recursive: true });
-  }
 
   const documents: Array<{ type: GeneratedDocumentType; label: string }> = [
     { type: "bonafide_certificate", label: "Bonafide Certificate" },
@@ -352,16 +352,12 @@ export async function generateDocumentBundle(input: AdminStudentRecordInput): Pr
       const pdfBuffer = await renderTemplateBuffer(document.type, documentContexts[document.type]);
       const fileName = `${document.type}-${safeEnrollment}-${generatedAt + index}.pdf`;
 
-      if (shouldPersistToDisk) {
-        await fs.writeFile(path.join(diskDir, fileName), pdfBuffer);
-      }
-
       return {
         type: document.type,
         label: document.label,
         fileName,
-        pdfUrl: shouldPersistToDisk ? `/generated/${fileName}` : "",
-        pdfBase64: shouldPersistToDisk ? undefined : pdfBuffer.toString("base64")
+        pdfUrl: "",
+        pdfBase64: pdfBuffer.toString("base64")
       };
     })
   );

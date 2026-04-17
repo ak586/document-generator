@@ -23,6 +23,7 @@ const LOCAL_CHROME_CANDIDATES = [
 const SERVERLESS_CHROMIUM_BIN_PATH = path.join(process.cwd(), "node_modules", "@sparticuz", "chromium", "bin");
 let serverlessExecutablePathPromise: Promise<string> | null = null;
 let serverlessHindiFontPromise: Promise<string> | null = null;
+let staticHeaderImagesPromise: Promise<{ blueTextImageDataUri: string; yellowTextImageDataUri: string }> | null = null;
 
 const NOTO_SANS_DEVANAGARI_FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansDevanagari-Regular.ttf");
 
@@ -36,6 +37,14 @@ function getLegacyCollegeDisplayNameHtml(course: string | undefined): string {
   return isPharmacyCourseName(course)
     ? "OM SRI SAI PHARMACY<br />COLLEGE OF EDUCATION"
     : "Om Sri Sai College of Paramedical and Sciences";
+}
+
+function getLegacyFooterEmail(course: string | undefined): string {
+  return isPharmacyCourseName(course) ? "info@osspce.com" : "info@osscps.in";
+}
+
+function getLegacyFooterWebsite(course: string | undefined): string {
+  return isPharmacyCourseName(course) ? "osspce.com" : "osscps.in";
 }
 
 function configureServerlessChromiumEnv() {
@@ -184,6 +193,35 @@ async function loadTemplate(documentType: DocumentType): Promise<handlebars.Temp
   return handlebars.compile(templateRaw);
 }
 
+async function loadStaticHeaderImages() {
+  if (!staticHeaderImagesPromise) {
+    staticHeaderImagesPromise = (async () => {
+      let blueTextImageDataUri = "";
+      let yellowTextImageDataUri = "";
+
+      try {
+        const imagePath = path.join(process.cwd(), "public", "blue-text.png");
+        const imageBuffer = await fs.readFile(imagePath);
+        blueTextImageDataUri = `data:image/png;base64,${imageBuffer.toString("base64")}`;
+      } catch {
+        blueTextImageDataUri = "";
+      }
+
+      try {
+        const imagePath = path.join(process.cwd(), "public", "yellow-text.png");
+        const imageBuffer = await fs.readFile(imagePath);
+        yellowTextImageDataUri = `data:image/png;base64,${imageBuffer.toString("base64")}`;
+      } catch {
+        yellowTextImageDataUri = "";
+      }
+
+      return { blueTextImageDataUri, yellowTextImageDataUri };
+    })();
+  }
+
+  return staticHeaderImagesPromise;
+}
+
 async function launchBrowser() {
   const localChromePath = LOCAL_CHROME_CANDIDATES.find((candidate) => fsSync.existsSync(candidate));
 
@@ -194,6 +232,7 @@ async function launchBrowser() {
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
+        "--disable-local-fonts",
         "--font-render-hinting=none",
         "--disable-font-subpixel-positioning"
       ]
@@ -210,7 +249,7 @@ async function launchBrowser() {
   const executablePath = await serverlessExecutablePathPromise;
 
   return puppeteer.launch({
-    args: [...chromium.args, "--font-render-hinting=none", "--disable-font-subpixel-positioning"],
+    args: [...chromium.args, "--disable-local-fonts", "--font-render-hinting=none", "--disable-font-subpixel-positioning"],
     defaultViewport: chromium.defaultViewport,
     executablePath,
     headless: chromium.headless
@@ -219,7 +258,10 @@ async function launchBrowser() {
 
 export async function renderTemplateBuffer(documentType: DocumentType, context: Record<string, unknown>): Promise<Buffer> {
   const compile = await loadTemplate(documentType);
-  const html = compile(context);
+  const { blueTextImageDataUri, yellowTextImageDataUri } = await loadStaticHeaderImages();
+  const html = compile(context)
+    .replaceAll("__BLUE_TEXT_IMAGE__", blueTextImageDataUri)
+    .replaceAll("__YELLOW_TEXT_IMAGE__", yellowTextImageDataUri);
   const browser = await launchBrowser();
 
   try {
@@ -282,31 +324,13 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     watermarkDataUri = "";
   }
 
-  let devanagariFontDataUri = "";
+  let notoFontDataUri = "";
   try {
     const fontPath = path.join(process.cwd(), "public", "fonts", "NotoSansDevanagari-Regular.ttf");
     const fontBuffer = await fs.readFile(fontPath);
-    devanagariFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
+    notoFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
   } catch {
-    devanagariFontDataUri = "";
-  }
-
-  let hindiHeaderFontDataUri = "";
-  try {
-    const fontPath = path.join(process.cwd(), "public", "fonts", "Hind-Bold.ttf");
-    const fontBuffer = await fs.readFile(fontPath);
-    hindiHeaderFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
-  } catch {
-    hindiHeaderFontDataUri = "";
-  }
-
-  let hindiYellowFontDataUri = "";
-  try {
-    const fontPath = path.join(process.cwd(), "public", "fonts", "Mukta-Bold.ttf");
-    const fontBuffer = await fs.readFile(fontPath);
-    hindiYellowFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
-  } catch {
-    hindiYellowFontDataUri = "";
+    notoFontDataUri = "";
   }
 
   let headerBannerDataUri = "";
@@ -330,11 +354,11 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     guardianName,
     logoDataUri,
     watermarkDataUri,
-    devanagariFontDataUri,
-    hindiHeaderFontDataUri,
-    hindiYellowFontDataUri,
+    notoFontDataUri,
     headerBannerDataUri,
     collegeDisplayNameHtml: getLegacyCollegeDisplayNameHtml(legacyCourseName),
+    footerEmail: getLegacyFooterEmail(legacyCourseName),
+    footerWebsite: getLegacyFooterWebsite(legacyCourseName),
     ...admissionSlipContext,
     ...duesLetterContext
   });

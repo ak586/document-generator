@@ -1,34 +1,8 @@
 <!doctype html>
-<html>
+<html lang="hi">
   <head>
     <meta charset="utf-8" />
     <style>
-      {{#if devanagariFontDataUri}}
-      @font-face {
-        font-family: "Embedded Devanagari";
-        src: url("{{{devanagariFontDataUri}}}") format("truetype");
-        font-weight: 400;
-        font-style: normal;
-      }
-      {{/if}}
-
-      {{#if hindiHeaderFontDataUri}}
-      @font-face {
-        font-family: "Embedded Hindi Header";
-        src: url("{{{hindiHeaderFontDataUri}}}") format("truetype");
-        font-weight: 700;
-        font-style: normal;
-      }
-      {{/if}}
-
-      {{#if hindiYellowFontDataUri}}
-      @font-face {
-        font-family: "Embedded Hindi Yellow";
-        src: url("{{{hindiYellowFontDataUri}}}") format("truetype");
-        font-weight: 700;
-        font-style: normal;
-      }
-      {{/if}}
 
       * {
         box-sizing: border-box;
@@ -161,15 +135,32 @@
         line-height: 1.1;
         color: #111;
         white-space: nowrap;
-        font-family: "Noto Sans Devanagari", "Mangal", sans-serif;
+        font-family: "MyCustomHindiFont" !important;
       }
 
       .hindi-line-1 {
-        font-weight: 600;
+        font-weight: normal;
       }
 
       .hindi-line-2 {
-        font-weight: 700;
+        font-weight: normal;
+      }
+
+      .header-text-image {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        max-height: 24px;
+        height: auto;
+        object-fit: contain;
+      }
+
+      .blue-image {
+        max-height: 36px;
+      }
+
+      .yellow-image {
+        max-height: 22px;
       }
 
       .watermark {
@@ -371,15 +362,11 @@
             </div>
 
             <div class="blue-block">
-              <div class="hindi-line-1">
-                (राष्ट्रकवि रामधारी सिंह "दिनकर" मेमोरियल ट्रस्ट के तत्वावधान में संचालित)
-              </div>
+              <img class="header-text-image blue-image" src="__BLUE_TEXT_IMAGE__" alt="Hindi trust line" />
             </div>
 
             <div class="yellow-block">
-              <div class="hindi-line-2">
-                बिहार स्वास्थ्य विज्ञान विश्वविद्यालय, पटना द्वारा मान्यता प्राप्त
-              </div>
+              <img class="header-text-image yellow-image" src="__YELLOW_TEXT_IMAGE__" alt="Hindi recognition line" />
             </div>
           </div>
         </div>
@@ -467,13 +454,13 @@
             <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm8 6.6L19.2 7H4.8zM5 17h14V8.2l-6.37 4.78a1 1 0 0 1-1.26 0L5 8.2z" />
             </svg>
-            <span>info@osscps.in</span>
+            <span>{{footerEmail}}</span>
           </span>
           <span class="footer-item">
             <svg class="footer-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm6.93 9h-3.17a15.7 15.7 0 0 0-1.18-5A8.02 8.02 0 0 1 18.93 11zM12 4.07c.89 1.08 1.99 3.23 2.53 6.93H9.47C10.01 7.3 11.11 5.15 12 4.07zM9.42 6a15.7 15.7 0 0 0-1.18 5H5.07A8.02 8.02 0 0 1 9.42 6zM5.07 13h3.17a15.7 15.7 0 0 0 1.18 5A8.02 8.02 0 0 1 5.07 13zM12 19.93c-.89-1.08-1.99-3.23-2.53-6.93h5.06c-.54 3.7-1.64 5.85-2.53 6.93zM14.58 18a15.7 15.7 0 0 0 1.18-5h3.17A8.02 8.02 0 0 1 14.58 18z" />
             </svg>
-            <span>osscps.in</span>
+            <span>{{footerWebsite}}</span>
           </span>
           <div class="footer-socials" aria-hidden="true">
             <span class="footer-social">
