@@ -26,6 +26,7 @@
       background: #fff;
       border: 2px solid #444;
       padding: 18px 22px 28px;
+      position: relative;
     }
 
     .ref-row {
@@ -238,8 +239,8 @@
     }
 
     .signature-section {
-      margin-top: 56px;
-      min-height: 108px;
+      margin-top: 44px;
+      min-height: 92px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -259,6 +260,24 @@
       text-align: right;
     }
 
+    .system-note {
+      position: absolute;
+      left: 50%;
+      bottom: 34px;
+      transform: translateX(-50%);
+      max-width: 260px;
+      padding: 6px 12px;
+      border: 1px solid #d8e4dd;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #fbfdfc 0%, #f1f6f3 100%);
+      box-shadow: 0 2px 8px rgba(24, 56, 45, 0.05);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #315347;
+      text-align: center;
+    }
+
     @media print {
       body {
         background: #fff;
@@ -276,7 +295,7 @@
   <div class="slip">
 
     <div class="ref-row">
-      <span>Admission No/Roll No:&nbsp;</span>
+      <span>Reference No:&nbsp;</span>
       <span>{{admissionReferenceCode}}</span>
     </div>
 
@@ -368,6 +387,8 @@
       <div class="signature-line"></div>
       <div class="signature-label">Authority Signature</div>
     </div>
+
+    <div class="system-note">This document is system generated</div>
 
   </div>
 </body>
