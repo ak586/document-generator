@@ -47,6 +47,12 @@ function getLegacyFooterWebsite(course: string | undefined): string {
   return isPharmacyCourseName(course) ? "osspce.com" : "osscps.in";
 }
 
+function getLegacyFeeStructureHeading(course: string | undefined): string {
+  return isPharmacyCourseName(course)
+    ? "Degree Fee Structure for Pharmacy Courses"
+    : "Degree Fee Structure for Paramedical Courses";
+}
+
 function configureServerlessChromiumEnv() {
   if (!process.env.VERCEL) return;
 
@@ -200,7 +206,7 @@ async function loadStaticHeaderImages() {
       let yellowTextImageDataUri = "";
 
       try {
-        const imagePath = path.join(process.cwd(), "public", "blue-text.png");
+        const imagePath = path.join(process.cwd(), "public", "assets", "header", "blue-text.png");
         const imageBuffer = await fs.readFile(imagePath);
         blueTextImageDataUri = `data:image/png;base64,${imageBuffer.toString("base64")}`;
       } catch {
@@ -208,7 +214,7 @@ async function loadStaticHeaderImages() {
       }
 
       try {
-        const imagePath = path.join(process.cwd(), "public", "yellow-text.png");
+        const imagePath = path.join(process.cwd(), "public", "assets", "header", "yellow-text.png");
         const imageBuffer = await fs.readFile(imagePath);
         yellowTextImageDataUri = `data:image/png;base64,${imageBuffer.toString("base64")}`;
       } catch {
@@ -307,7 +313,7 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     )
       ? "pharmacy-logo.jpeg"
       : "paramedical-logo.jpeg";
-    const logoPath = path.join(process.cwd(), "public", logoFileName);
+    const logoPath = path.join(process.cwd(), "public", "assets", "branding", "logos", logoFileName);
     const logoBuffer = await fs.readFile(logoPath);
     logoDataUri = `data:image/jpeg;base64,${logoBuffer.toString("base64")}`;
   } catch {
@@ -317,11 +323,39 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
   let watermarkDataUri = "";
   try {
     const watermarkFileName = isPharmacyCourseName(legacyCourseName) ? "pharmacy-watermark.png" : "paramedical-watermark.png";
-    const watermarkPath = path.join(process.cwd(), "public", watermarkFileName);
+    const watermarkPath = path.join(process.cwd(), "public", "assets", "branding", "watermarks", watermarkFileName);
     const watermarkBuffer = await fs.readFile(watermarkPath);
     watermarkDataUri = `data:image/png;base64,${watermarkBuffer.toString("base64")}`;
   } catch {
     watermarkDataUri = "";
+  }
+
+  let signatureDataUri = "";
+  let stampDataUri = "";
+  try {
+    const signaturePath = path.join(
+      process.cwd(),
+      "public",
+      "assets",
+      "branding",
+      "signatures",
+      isPharmacyCourseName(legacyCourseName) ? "pharma-sign.jpeg" : "sign-paramedical.jpeg"
+    );
+    const signatureBuffer = await fs.readFile(signaturePath);
+    signatureDataUri = `data:image/jpeg;base64,${signatureBuffer.toString("base64")}`;
+    const stampPath = path.join(
+      process.cwd(),
+      "public",
+      "assets",
+      "branding",
+      "signatures",
+      isPharmacyCourseName(legacyCourseName) ? "pharma-stamp.jpeg" : "paramedical-stamp.jpeg"
+    );
+    const stampBuffer = await fs.readFile(stampPath);
+    stampDataUri = `data:image/jpeg;base64,${stampBuffer.toString("base64")}`;
+  } catch {
+    signatureDataUri = "";
+    stampDataUri = "";
   }
 
   let notoFontDataUri = "";
@@ -331,15 +365,6 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     notoFontDataUri = `data:font/ttf;base64,${fontBuffer.toString("base64")}`;
   } catch {
     notoFontDataUri = "";
-  }
-
-  let headerBannerDataUri = "";
-  try {
-    const bannerPath = path.join(process.cwd(), "public", "om-sri-sai-document-header.png");
-    const bannerBuffer = await fs.readFile(bannerPath);
-    headerBannerDataUri = `data:image/png;base64,${bannerBuffer.toString("base64")}`;
-  } catch {
-    headerBannerDataUri = "";
   }
 
   return renderTemplateBuffer(application.documentType, {
@@ -354,11 +379,13 @@ export async function renderPdfBuffer(application: StudentApplication): Promise<
     guardianName,
     logoDataUri,
     watermarkDataUri,
+    signatureDataUri,
+    stampDataUri,
     notoFontDataUri,
-    headerBannerDataUri,
     collegeDisplayNameHtml: getLegacyCollegeDisplayNameHtml(legacyCourseName),
     footerEmail: getLegacyFooterEmail(legacyCourseName),
     footerWebsite: getLegacyFooterWebsite(legacyCourseName),
+    feeStructureHeading: getLegacyFeeStructureHeading(legacyCourseName),
     ...admissionSlipContext,
     ...duesLetterContext
   });

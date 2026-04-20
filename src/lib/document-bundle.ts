@@ -35,10 +35,12 @@ type StudentBundleContext = {
   collegeDisplayNameHtml: string;
   footerEmail: string;
   footerWebsite: string;
+  feeStructureHeading: string;
   notoFontDataUri: string;
   logoDataUri: string;
   watermarkDataUri: string;
-  headerBannerDataUri: string;
+  signatureDataUri: string;
+  stampDataUri: string;
   bonafideYearHeaders: string[];
   bonafideFeeRows: Array<{ label: string; total: string; yearlyAmounts: string[] }>;
   bonafideTotalDue: string;
@@ -174,6 +176,12 @@ function getFooterWebsite(courseId: string): string {
   return isPharmacyCourse(courseId) ? "osspce.com" : "osscps.in";
 }
 
+function getFeeStructureHeading(courseId: string): string {
+  return isPharmacyCourse(courseId)
+    ? "Degree Fee Structure for Pharmacy Courses"
+    : "Degree Fee Structure for Paramedical Courses";
+}
+
 async function buildStudentBundleContext(input: AdminStudentRecordInput): Promise<StudentBundleContext> {
   const course = getCourseById(input.courseId);
   const feeStructure = await getRequiredFeeStructure(input.courseId, input.startYear);
@@ -199,13 +207,18 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
   });
 
   const logoDataUri = isPharmacyCourse(input.courseId)
-    ? await readAssetAsDataUri("pharmacy-logo.jpeg", "image/jpeg")
-    : await readAssetAsDataUri("paramedical-logo.jpeg", "image/jpeg");
+    ? await readAssetAsDataUri("assets/branding/logos/pharmacy-logo.jpeg", "image/jpeg")
+    : await readAssetAsDataUri("assets/branding/logos/paramedical-logo.jpeg", "image/jpeg");
   const watermarkDataUri = isPharmacyCourse(input.courseId)
-    ? await readAssetAsDataUri("pharmacy-watermark.png", "image/png")
-    : await readAssetAsDataUri("paramedical-watermark.png", "image/png");
+    ? await readAssetAsDataUri("assets/branding/watermarks/pharmacy-watermark.png", "image/png")
+    : await readAssetAsDataUri("assets/branding/watermarks/paramedical-watermark.png", "image/png");
+  const signatureDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("assets/branding/signatures/pharma-sign.jpeg", "image/jpeg")
+    : await readAssetAsDataUri("assets/branding/signatures/sign-paramedical.jpeg", "image/jpeg");
+  const stampDataUri = isPharmacyCourse(input.courseId)
+    ? await readAssetAsDataUri("assets/branding/signatures/pharma-stamp.jpeg", "image/jpeg")
+    : await readAssetAsDataUri("assets/branding/signatures/paramedical-stamp.jpeg", "image/jpeg");
   const notoFontDataUri = await readAssetAsDataUri("fonts/NotoSansDevanagari-Regular.ttf", "font/ttf");
-  const headerBannerDataUri = await readAssetAsDataUri("om-sri-sai-document-header.png", "image/png");
 
   return {
     studentName: input.studentName.trim(),
@@ -236,10 +249,12 @@ async function buildStudentBundleContext(input: AdminStudentRecordInput): Promis
     collegeDisplayNameHtml: getCollegeDisplayNameHtml(input.courseId),
     footerEmail: getFooterEmail(input.courseId),
     footerWebsite: getFooterWebsite(input.courseId),
+    feeStructureHeading: getFeeStructureHeading(input.courseId),
     notoFontDataUri,
     logoDataUri,
     watermarkDataUri,
-    headerBannerDataUri,
+    signatureDataUri,
+    stampDataUri,
     bonafideYearHeaders,
     bonafideFeeRows: [
       buildRow("Tuition Fee", yearRecords.reduce((sum, year) => sum + year.tuitionFee, 0), yearRecords.map((year) => year.tuitionFee)),

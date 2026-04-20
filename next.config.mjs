@@ -8,14 +8,14 @@ const nextConfig = {
       "/api/admin/applications/[id]/generate": [
         "./node_modules/@sparticuz/chromium/bin/**/*",
         "./public/fonts/**/*",
-        "./public/blue-text.png",
-        "./public/yellow-text.png"
+        "./public/assets/header/**/*",
+        "./public/assets/branding/**/*"
       ],
       "/api/admin/generate-documents": [
         "./node_modules/@sparticuz/chromium/bin/**/*",
         "./public/fonts/**/*",
-        "./public/blue-text.png",
-        "./public/yellow-text.png"
+        "./public/assets/header/**/*",
+        "./public/assets/branding/**/*"
       ]
     }
   }

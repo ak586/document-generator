@@ -302,8 +302,36 @@
         gap: 16px;
       }
 
+      .sign-row--image {
+        margin-top: 24px;
+      }
+
       .signatory {
         text-align: center;
+      }
+
+      .sign-assets {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+      }
+
+      .signature-image {
+        display: block;
+        width: 168px;
+        max-width: 100%;
+        max-height: 72px;
+        object-fit: contain;
+        object-position: bottom center;
+      }
+
+      .stamp-image {
+        display: block;
+        width: 112px;
+        max-width: 100%;
+        max-height: 112px;
+        object-fit: contain;
+        object-position: bottom center;
       }
 
       .sign-line {
@@ -388,17 +416,12 @@
       }
 
       .system-note {
-        margin: 12px auto 8px;
-        max-width: 320px;
-        padding: 8px 14px;
-        border: 1px solid #d8e4dd;
-        border-radius: 999px;
-        background: linear-gradient(180deg, #fbfdfc 0%, #f1f6f3 100%);
-        box-shadow: 0 3px 10px rgba(24, 56, 45, 0.06);
-        font-size: 11.5px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 54px;
+        font-size: 12px;
         font-weight: 700;
-        letter-spacing: 0.04em;
-        color: #315347;
         text-align: center;
       }
     </style>
@@ -453,7 +476,7 @@
         <p class="detail">Program Name&nbsp;&nbsp;&nbsp;&nbsp;: {{bonafideCourseName}}</p>
         <p class="detail">Course Duration&nbsp;&nbsp;: {{bonafideProgramDuration}}</p>
 
-        <p class="section-title">Degree Fee Structure for Paramedical Courses</p>
+        <p class="section-title">{{feeStructureHeading}}</p>
         <table class="fee-table">
           <thead>
             <tr>
@@ -503,15 +526,28 @@
           </tbody>
         </table>
 
-        <div class="sign-row">
+        <div class="sign-row{{#if signatureDataUri}} sign-row--image{{/if}}">
+          {{#if signatureDataUri}}
+          <div class="sign-assets">
+            {{#if stampDataUri}}
+            <img class="stamp-image" src="{{stampDataUri}}" alt="Institute stamp" />
+            {{/if}}
+            <div class="signatory">
+              <img class="signature-image" src="{{signatureDataUri}}" alt="Authorized signature" />
+              <div class="sign-line"></div>
+              <p class="sign-text">Authorized Signatory</p>
+            </div>
+          </div>
+          {{else}}
           <div class="signatory">
             <div class="sign-line"></div>
-            <p class="sign-text">Signatory</p>
+            <p class="sign-text">Authorized Signatory</p>
           </div>
+          {{/if}}
         </div>
       </div>
 
-      <p class="system-note">This document is system generated</p>
+      <p class="system-note">"THIS IS A COMPUTER GENERATED CERTIFICATE."</p>
       <div class="footer">
         <div class="footer-address">
           Address - Dahivat, Navratna (Madhepura), Pandaul, Madhubani, Bihar - (847234)

@@ -247,6 +247,39 @@
       justify-content: flex-end;
     }
 
+    .signature-section--image {
+      margin-top: 18px;
+      min-height: 84px;
+    }
+
+    .sign-assets {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .signatory {
+      text-align: center;
+    }
+
+    .signature-image {
+      display: block;
+      width: 166px;
+      max-width: 100%;
+      max-height: 72px;
+      object-fit: contain;
+      object-position: bottom center;
+    }
+
+    .stamp-image {
+      display: block;
+      width: 108px;
+      max-width: 100%;
+      max-height: 108px;
+      object-fit: contain;
+      object-position: bottom center;
+    }
+
     .signature-line {
       border-bottom: 2px dotted #444;
       margin-bottom: 12px;
@@ -261,20 +294,9 @@
     }
 
     .system-note {
-      position: absolute;
-      left: 50%;
-      bottom: 34px;
-      transform: translateX(-50%);
-      max-width: 260px;
-      padding: 6px 12px;
-      border: 1px solid #d8e4dd;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #fbfdfc 0%, #f1f6f3 100%);
-      box-shadow: 0 2px 8px rgba(24, 56, 45, 0.05);
-      font-size: 10.5px;
+      margin-top: 10px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      color: #315347;
       text-align: center;
     }
 
@@ -383,12 +405,25 @@
       </div>
     </div>
 
-    <div class="signature-section">
+    <div class="signature-section{{#if signatureDataUri}} signature-section--image{{/if}}">
+      {{#if signatureDataUri}}
+      <div class="sign-assets">
+        {{#if stampDataUri}}
+        <img class="stamp-image" src="{{stampDataUri}}" alt="Institute stamp">
+        {{/if}}
+        <div class="signatory">
+          <img class="signature-image" src="{{signatureDataUri}}" alt="Authorized signature">
+          <div class="signature-line"></div>
+          <div class="signature-label">Authorized Signatory</div>
+        </div>
+      </div>
+      {{else}}
       <div class="signature-line"></div>
-      <div class="signature-label">Authority Signature</div>
+      <div class="signature-label">Authorized Signatory</div>
+      {{/if}}
     </div>
 
-    <div class="system-note">This document is system generated</div>
+    <div class="system-note">"THIS IS A COMPUTER GENERATED CERTIFICATE."</div>
 
   </div>
 </body>
