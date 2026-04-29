@@ -239,7 +239,7 @@
     }
 
     .signature-section {
-      margin-top: 44px;
+      margin-top: 74px;
       min-height: 92px;
       display: flex;
       flex-direction: column;
@@ -405,22 +405,9 @@
       </div>
     </div>
 
-    <div class="signature-section{{#if signatureDataUri}} signature-section--image{{/if}}">
-      {{#if signatureDataUri}}
-      <div class="sign-assets">
-        {{#if stampDataUri}}
-        <img class="stamp-image" src="{{stampDataUri}}" alt="Institute stamp">
-        {{/if}}
-        <div class="signatory">
-          <img class="signature-image" src="{{signatureDataUri}}" alt="Authorized signature">
-          <div class="signature-line"></div>
-          <div class="signature-label">Authorized Signatory</div>
-        </div>
-      </div>
-      {{else}}
+    <div class="signature-section">
       <div class="signature-line"></div>
       <div class="signature-label">Authorized Signatory</div>
-      {{/if}}
     </div>
 
     <div class="system-note">"THIS IS A COMPUTER GENERATED CERTIFICATE."</div>

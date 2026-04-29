@@ -59,9 +59,10 @@
       }
 
       .left-logo-block img {
-        width: 74%;
-        height: 86%;
-        object-fit: cover;
+        width: 78%;
+        height: 90%;
+        object-fit: contain;
+        object-position: center top;
         display: block;
       }
 
@@ -288,7 +289,8 @@
       }
 
       .sign-row {
-        margin-top: 48px;
+        margin-top: 158px;
+        padding-right: 20px;
         display: flex;
         justify-content: flex-end;
         align-items: flex-end;
@@ -554,24 +556,11 @@
           </tbody>
         </table>
 
-        <div class="sign-row{{#if signatureDataUri}} sign-row--image{{/if}}">
-          {{#if signatureDataUri}}
-          <div class="sign-assets">
-            {{#if stampDataUri}}
-            <img class="stamp-image" src="{{stampDataUri}}" alt="Institute stamp" />
-            {{/if}}
-            <div class="signatory">
-              <img class="signature-image" src="{{signatureDataUri}}" alt="Authorized signature" />
-              <div class="sign-line"></div>
-              <p class="sign-text">Authorized Signatory</p>
-            </div>
-          </div>
-          {{else}}
+        <div class="sign-row">
           <div class="signatory">
             <div class="sign-line"></div>
             <p class="sign-text">Authorized Signatory</p>
           </div>
-          {{/if}}
         </div>
       </div>
 
