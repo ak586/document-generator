@@ -23,6 +23,8 @@
         border: 1px solid #d2c4b8;
         position: relative;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
       .top-strip {
@@ -189,7 +191,8 @@
       .content {
         position: relative;
         z-index: 1;
-        padding: 36px 46px 118px;
+        padding: 36px 46px 30px;
+        flex: 1 0 auto;
       }
 
       .meta-row {
@@ -255,7 +258,7 @@
       }
 
       .sign-row {
-        margin-top: 122px;
+        margin-top: 106px;
         padding-right: 20px;
         display: flex;
         justify-content: flex-end;
@@ -308,15 +311,12 @@
       }
 
       .footer {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 8px;
         background: linear-gradient(90deg, #f59b23 0%, #ef7b17 50%, #e55c0f 100%);
         color: #fff;
         padding: 7px 16px 6px;
         font-size: 10.5px;
         font-weight: 700;
+        margin-top: 0;
       }
 
       .footer-address {
@@ -377,7 +377,7 @@
       }
 
       .system-note {
-        margin: 8px 0 14px;
+        margin: 0 0 8px;
         font-size: 12px;
         font-weight: 700;
         text-align: center;
